@@ -336,6 +336,7 @@ section{padding:104px 0;}
   overflow:hidden;
 }
 .product-visual svg{width:52%; height:52%;}
+.product-visual img{width:100%; height:100%; object-fit:contain; object-position:center; background:#000;}
 .product-visual .stroke{stroke:var(--accent); fill:none; stroke-width:1.3; vector-effect:non-scaling-stroke;}
 
 .product-meta{

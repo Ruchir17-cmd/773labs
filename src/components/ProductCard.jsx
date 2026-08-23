@@ -5,7 +5,7 @@ export default function ProductCard({ product }) {
   return (
     <div className="product-card">
       <div className="product-visual blueprint-bg">
-        <Icon name={product.icon} />
+        {product.image ? <img src={product.image} alt={product.name} /> : <Icon name={product.icon} />}
       </div>
       <div className="product-meta">
         <div className="product-cat">{product.category}</div>

@@ -23,7 +23,7 @@ export const PRODUCTS = [
   { id: 'mp-06', name: 'Modular Tool Rack Bracket', category: 'Mechanical Parts & Brackets', material: 'PLA', layerHeight: '0.2mm', printTime: '3h', price: 'From ₹399', icon: 'bracket' },
 
   // Miniatures & Collectibles
-  { id: 'mc-01', name: 'Articulated Dragon Figure', category: 'Miniatures & Collectibles', material: 'Resin', layerHeight: '0.05mm', printTime: '9h', price: 'From ₹899', icon: 'mini' },
+  { id: 'mc-01', name: 'Articulated Dragon Figure', category: 'Miniatures & Collectibles', material: 'Resin', layerHeight: '0.05mm', printTime: '9h', price: 'From ₹899', icon: 'mini', image: '/dragon.jpg' },
   { id: 'mc-02', name: 'Fantasy Wizard Miniature (32mm)', category: 'Miniatures & Collectibles', material: 'Resin', layerHeight: '0.03mm', printTime: '2h', price: 'From ₹249', icon: 'mini' },
   { id: 'mc-03', name: 'Chess Set — Modern Geometric', category: 'Miniatures & Collectibles', material: 'PLA', layerHeight: '0.12mm', printTime: '10h', price: 'From ₹1,499', icon: 'mini' },
   { id: 'mc-04', name: 'Sci-Fi Mech Miniature', category: 'Miniatures & Collectibles', material: 'Resin', layerHeight: '0.05mm', printTime: '3h', price: 'From ₹399', icon: 'mini' },
@@ -31,7 +31,7 @@ export const PRODUCTS = [
   { id: 'mc-06', name: 'Collectible Bust — Warrior', category: 'Miniatures & Collectibles', material: 'Resin', layerHeight: '0.05mm', printTime: '6h', price: 'From ₹799', icon: 'mini' },
 
   // Cosplay & Props
-  { id: 'cp-01', name: 'Full-Face Helmet Shell', category: 'Cosplay & Props', material: 'ABS', layerHeight: '0.2mm', printTime: '14h', price: 'From ₹2,999', icon: 'helmet' },
+  { id: 'cp-01', name: 'Full-Face Helmet Shell', category: 'Cosplay & Props', material: 'ABS', layerHeight: '0.2mm', printTime: '14h', price: 'From ₹2,999', icon: 'helmet', image: '/helmet.jpg' },
   { id: 'cp-02', name: 'Foam-Core Shoulder Armor', category: 'Cosplay & Props', material: 'PETG', layerHeight: '0.2mm', printTime: '7h', price: 'From ₹1,299', icon: 'helmet' },
   { id: 'cp-03', name: 'Prop Sword Hilt', category: 'Cosplay & Props', material: 'PLA', layerHeight: '0.16mm', printTime: '5h', price: 'From ₹899', icon: 'vase' },
   { id: 'cp-04', name: 'Sci-Fi Blaster Frame', category: 'Cosplay & Props', material: 'ABS', layerHeight: '0.2mm', printTime: '11h', price: 'From ₹2,199', icon: 'gear' },
