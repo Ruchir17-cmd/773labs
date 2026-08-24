@@ -11,6 +11,8 @@ export const CATEGORIES = [
   'Architecture Models',
   'Assistive Aids',
   'Custom Enclosures & Mounts',
+  'Characters',
+  'Weapons',
 ]
 
 export const PRODUCTS = [
@@ -77,6 +79,20 @@ export const PRODUCTS = [
   { id: 'ce-04', name: 'Under-Desk Headphone Hook', category: 'Custom Enclosures & Mounts', material: 'PLA', layerHeight: '0.2mm', printTime: '1h', price: 'From ₹199', icon: 'bracket' },
   { id: 'ce-05', name: 'Router Wall Mount', category: 'Custom Enclosures & Mounts', material: 'PETG', layerHeight: '0.2mm', printTime: '2h', price: 'From ₹349', icon: 'bracket' },
   { id: 'ce-06', name: 'Custom PCB Enclosure', category: 'Custom Enclosures & Mounts', material: 'PETG', layerHeight: '0.16mm', printTime: '4h', price: 'From ₹549', icon: 'gear' },
+
+  // Characters (Movies & TV)
+  { id: 'ch-01', name: 'Superman', category: 'Characters', material: 'Resin', layerHeight: '0.05mm', printTime: '8h', price: 'From ₹1,299', icon: 'mini' },
+  { id: 'ch-02', name: 'Iron Man', category: 'Characters', material: 'Resin', layerHeight: '0.05mm', printTime: '6h', price: 'From ₹999', icon: 'helmet' },
+  { id: 'ch-03', name: 'Batman', category: 'Characters', material: 'Resin', layerHeight: '0.03mm', printTime: '9h', price: 'From ₹1,199', icon: 'mini' },
+  { id: 'ch-04', name: 'Spider-Man', category: 'Characters', material: 'Resin', layerHeight: '0.05mm', printTime: '10h', price: 'From ₹1,499', icon: 'mini' },
+  { id: 'ch-05', name: 'Gandalf', category: 'Characters', material: 'PLA', layerHeight: '0.12mm', printTime: '4h', price: 'From ₹599', icon: 'mini' },
+
+  // Weapons (Movies & TV)
+  { id: 'wp-01', name: 'Mjolnir — Thor\u2019s Hammer', category: 'Weapons', material: 'PLA', layerHeight: '0.16mm', printTime: '12h', price: 'From ₹1,799', icon: 'gear' },
+  { id: 'wp-02', name: 'Captain America\u2019s Shield', category: 'Weapons', material: 'PLA', layerHeight: '0.2mm', printTime: '14h', price: 'From ₹2,499', icon: 'helmet' },
+  { id: 'wp-03', name: 'Lightsaber Hilt — Skywalker', category: 'Weapons', material: 'Resin', layerHeight: '0.1mm', printTime: '8h', price: 'From ₹1,499', icon: 'vase' },
+  { id: 'wp-04', name: 'Stormbreaker Axe', category: 'Weapons', material: 'PETG', layerHeight: '0.16mm', printTime: '16h', price: 'From ₹2,999', icon: 'bracket' },
+  { id: 'wp-05', name: 'Wolverine Claws (Pair)', category: 'Weapons', material: 'ABS', layerHeight: '0.16mm', printTime: '6h', price: 'From ₹999', icon: 'grip' },
 ]
 
 // The two designs shown on the homepage — pick any two ids from PRODUCTS.
