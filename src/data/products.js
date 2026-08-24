@@ -32,17 +32,17 @@ export const PRODUCTS = [
 
   // Cosplay & Props
   { id: 'cp-01', name: 'Full-Face Helmet Shell', category: 'Cosplay & Props', material: 'ABS', layerHeight: '0.2mm', printTime: '14h', price: 'From ₹2,999', icon: 'helmet', image: '/helmet.jpg' },
-  { id: 'cp-02', name: 'Foam-Core Shoulder Armor', category: 'Cosplay & Props', material: 'PETG', layerHeight: '0.2mm', printTime: '7h', price: 'From ₹1,299', icon: 'helmet' },
+  { id: 'cp-02', name: 'Foam-Core Shoulder Armor', category: 'Cosplay & Props', material: 'PETG', layerHeight: '0.2mm', printTime: '7h', price: 'From ₹1,299', icon: 'helmet', image: '/Foam-Core Shoulder Armor.jpg' },
   { id: 'cp-03', name: 'Prop Sword Hilt', category: 'Cosplay & Props', material: 'PLA', layerHeight: '0.16mm', printTime: '5h', price: 'From ₹899', icon: 'vase', image: '/Prop Sword Hilt.jpg' },
   { id: 'cp-04', name: 'Sci-Fi Blaster Frame', category: 'Cosplay & Props', material: 'ABS', layerHeight: '0.2mm', printTime: '11h', price: 'From ₹2,199', icon: 'gear', image: '/Sci-Fi Blaster Frame.jpg' },
-  { id: 'cp-05', name: 'Character Mask Base', category: 'Cosplay & Props', material: 'PETG', layerHeight: '0.16mm', printTime: '6h', price: 'From ₹1,099', icon: 'helmet' },
+  { id: 'cp-05', name: 'Character Mask Base', category: 'Cosplay & Props', material: 'PETG', layerHeight: '0.16mm', printTime: '6h', price: 'From ₹1,099', icon: 'helmet', image: '/Character Mask Base.jpg' },
   { id: 'cp-06', name: 'Gauntlet Armor Set', category: 'Cosplay & Props', material: 'PLA', layerHeight: '0.2mm', printTime: '9h', price: 'From ₹1,799', icon: 'helmet', image: '/Gauntlet Armor Set.jpg' },
 
   // Drone & RC Parts
-  { id: 'dr-01', name: 'FPV Drone Frame X220', category: 'Drone & RC Parts', material: 'Carbon-fill Nylon', layerHeight: '0.2mm', printTime: '4h', price: 'From ₹1,199', icon: 'drone' },
-  { id: 'dr-02', name: 'Propeller Guard Set', category: 'Drone & RC Parts', material: 'TPU', layerHeight: '0.2mm', printTime: '2h', price: 'From ₹399', icon: 'drone' },
-  { id: 'dr-03', name: 'RC Car Chassis Mount', category: 'Drone & RC Parts', material: 'PETG', layerHeight: '0.16mm', printTime: '3h', price: 'From ₹499', icon: 'bracket' },
-  { id: 'dr-04', name: 'Camera Gimbal Bracket', category: 'Drone & RC Parts', material: 'PETG', layerHeight: '0.12mm', printTime: '3h', price: 'From ₹549', icon: 'bracket' },
+  { id: 'dr-01', name: 'FPV Drone Frame X220', category: 'Drone & RC Parts', material: 'Carbon-fill Nylon', layerHeight: '0.2mm', printTime: '4h', price: 'From ₹1,199', icon: 'drone', image: '/FPV Drone Frame X220.jpg' },
+  { id: 'dr-02', name: 'Propeller Guard Set', category: 'Drone & RC Parts', material: 'TPU', layerHeight: '0.2mm', printTime: '2h', price: 'From ₹399', icon: 'drone', image: '/Propeller Guard Set.jpg' },
+  { id: 'dr-03', name: 'RC Car Chassis Mount', category: 'Drone & RC Parts', material: 'PETG', layerHeight: '0.16mm', printTime: '3h', price: 'From ₹499', icon: 'bracket', image: '/RC Car Chassis Mount.jpg' },
+  { id: 'dr-04', name: 'Camera Gimbal Bracket', category: 'Drone & RC Parts', material: 'PETG', layerHeight: '0.12mm', printTime: '3h', price: 'From ₹549', icon: 'bracket', image: '/Camera Gimbal Bracket.jpg' },
   { id: 'dr-05', name: 'Battery Strap Clip', category: 'Drone & RC Parts', material: 'TPU', layerHeight: '0.2mm', printTime: '1h', price: 'From ₹149', icon: 'drone' },
   { id: 'dr-06', name: 'Landing Gear Skids', category: 'Drone & RC Parts', material: 'Nylon', layerHeight: '0.2mm', printTime: '2h', price: 'From ₹349', icon: 'drone' },
 
