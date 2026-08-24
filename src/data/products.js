@@ -33,10 +33,10 @@ export const PRODUCTS = [
   // Cosplay & Props
   { id: 'cp-01', name: 'Full-Face Helmet Shell', category: 'Cosplay & Props', material: 'ABS', layerHeight: '0.2mm', printTime: '14h', price: 'From ₹2,999', icon: 'helmet', image: '/helmet.jpg' },
   { id: 'cp-02', name: 'Foam-Core Shoulder Armor', category: 'Cosplay & Props', material: 'PETG', layerHeight: '0.2mm', printTime: '7h', price: 'From ₹1,299', icon: 'helmet' },
-  { id: 'cp-03', name: 'Prop Sword Hilt', category: 'Cosplay & Props', material: 'PLA', layerHeight: '0.16mm', printTime: '5h', price: 'From ₹899', icon: 'vase' },
-  { id: 'cp-04', name: 'Sci-Fi Blaster Frame', category: 'Cosplay & Props', material: 'ABS', layerHeight: '0.2mm', printTime: '11h', price: 'From ₹2,199', icon: 'gear' },
+  { id: 'cp-03', name: 'Prop Sword Hilt', category: 'Cosplay & Props', material: 'PLA', layerHeight: '0.16mm', printTime: '5h', price: 'From ₹899', icon: 'vase', image: '/Prop Sword Hilt.jpg' },
+  { id: 'cp-04', name: 'Sci-Fi Blaster Frame', category: 'Cosplay & Props', material: 'ABS', layerHeight: '0.2mm', printTime: '11h', price: 'From ₹2,199', icon: 'gear', image: '/Sci-Fi Blaster Frame.jpg' },
   { id: 'cp-05', name: 'Character Mask Base', category: 'Cosplay & Props', material: 'PETG', layerHeight: '0.16mm', printTime: '6h', price: 'From ₹1,099', icon: 'helmet' },
-  { id: 'cp-06', name: 'Gauntlet Armor Set', category: 'Cosplay & Props', material: 'PLA', layerHeight: '0.2mm', printTime: '9h', price: 'From ₹1,799', icon: 'helmet' },
+  { id: 'cp-06', name: 'Gauntlet Armor Set', category: 'Cosplay & Props', material: 'PLA', layerHeight: '0.2mm', printTime: '9h', price: 'From ₹1,799', icon: 'helmet', image: '/Gauntlet Armor Set.jpg' },
 
   // Drone & RC Parts
   { id: 'dr-01', name: 'FPV Drone Frame X220', category: 'Drone & RC Parts', material: 'Carbon-fill Nylon', layerHeight: '0.2mm', printTime: '4h', price: 'From ₹1,199', icon: 'drone' },
