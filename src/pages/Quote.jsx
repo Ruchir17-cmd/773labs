@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Reveal from '../components/Reveal.jsx'
 import { waLink, buildQuoteMessage, buildGeneralMessage } from '../data/whatsapp.js'
 
@@ -10,17 +10,57 @@ const initialState = {
   deadline: '',
 }
 
+const PROJECT_TYPES = [
+  'Prop / Cosplay part',
+  'Miniature / Figurine',
+  'Functional / Replacement part',
+  'Decor / Gift',
+  'Something else',
+]
+
+const MATERIAL_GUIDE = {
+  PLA: 'Easy to print, great detail. Best for decorative pieces, miniatures, and display models.',
+  PETG: 'Tough and weather-resistant. Best for functional parts, brackets, and outdoor use.',
+  ABS: 'Heat-resistant and strong. Best for parts that take a beating — tools, car mounts, props.',
+  TPU: 'Flexible rubber-like. Best for grips, phone cases, cushions, and wearables.',
+  Nylon: 'Extremely durable engineering filament. Best for gears and high-stress mechanical parts.',
+  Resin: 'Ultra-fine detail. Best for miniatures, characters, jewelry, and precision work.',
+}
+
+const TIMELINE_STEPS = [
+  {
+    num: '01',
+    title: 'You send the brief',
+    text: 'This form opens WhatsApp with everything filled in — add photos or file links in the chat.',
+  },
+  {
+    num: '02',
+    title: 'Shivesh replies with a price',
+    text: 'Final quote, timeline, and material options — usually within 24 hours.',
+  },
+  {
+    num: '03',
+    title: 'Printed & shipped',
+    text: 'Once confirmed, your part is printed, checked, packed, and on its way.',
+  },
+]
+
 export default function Quote() {
   const [fields, setFields] = useState(initialState)
+  const [projectType, setProjectType] = useState('')
 
   function update(key, value) {
     setFields((f) => ({ ...f, [key]: value }))
   }
 
+  const message = useMemo(
+    () => buildQuoteMessage({ ...fields, projectType }),
+    [fields, projectType]
+  )
+
   function handleSubmit(e) {
     e.preventDefault()
-    const link = waLink(buildQuoteMessage(fields))
-    window.open(link, '_blank', 'noopener,noreferrer')
+    window.open(waLink(message), '_blank', 'noopener,noreferrer')
   }
 
   return (
@@ -42,6 +82,18 @@ export default function Quote() {
             >
               Skip the form — chat directly
             </a>
+
+            <div className="quote-timeline">
+              {TIMELINE_STEPS.map((step) => (
+                <div key={step.num} className="qt-step">
+                  <span className="qt-num">{step.num}</span>
+                  <div>
+                    <h4>{step.title}</h4>
+                    <p>{step.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           <form onSubmit={handleSubmit}>
@@ -55,6 +107,23 @@ export default function Quote() {
                 onChange={(e) => update('name', e.target.value)}
               />
             </div>
+
+            <div className="field">
+              <label>Project type</label>
+              <div className="chip-row">
+                {PROJECT_TYPES.map((type) => (
+                  <button
+                    key={type}
+                    type="button"
+                    className={`chip ${projectType === type ? 'active' : ''}`}
+                    onClick={() => setProjectType((t) => (t === type ? '' : type))}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="field">
               <label htmlFor="details">Project details</label>
               <textarea
@@ -65,6 +134,7 @@ export default function Quote() {
                 onChange={(e) => update('details', e.target.value)}
               />
             </div>
+
             <div className="form-row">
               <div className="field">
                 <label htmlFor="material">Material preference</label>
@@ -81,6 +151,10 @@ export default function Quote() {
                   <option>Nylon</option>
                   <option>Resin</option>
                 </select>
+                <p className="material-hint" aria-live="polite">
+                  {MATERIAL_GUIDE[fields.material] ||
+                    'No idea which to pick? Leave this as-is and Shivesh will recommend one based on your project.'}
+                </p>
               </div>
               <div className="field">
                 <label htmlFor="quantity">Quantity</label>
@@ -93,6 +167,7 @@ export default function Quote() {
                 />
               </div>
             </div>
+
             <div className="field">
               <label htmlFor="deadline">Deadline (optional)</label>
               <input
@@ -102,7 +177,13 @@ export default function Quote() {
                 onChange={(e) => update('deadline', e.target.value)}
               />
             </div>
-            <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-start', border: 'none', cursor: 'pointer', marginTop: '8px' }}>
+
+            <div className="wa-preview">
+              <div className="wa-preview-label">What you'll send</div>
+              <div className="wa-bubble">{message}</div>
+            </div>
+
+            <button type="submit" className="btn btn-primary quote-submit">
               Continue on WhatsApp →
             </button>
           </form>

@@ -16,6 +16,7 @@ export function buildQuoteMessage(fields) {
     'Hi Shivesh! I\'d like a custom quote.',
     '',
     `Name: ${fields.name || '-'}`,
+    fields.projectType ? `Project type: ${fields.projectType}` : null,
     `Details: ${fields.details || '-'}`,
     `Material: ${fields.material || '-'}`,
     `Quantity: ${fields.quantity || '-'}`,

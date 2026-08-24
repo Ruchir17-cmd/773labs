@@ -816,6 +816,90 @@ input:focus, textarea:focus, select:focus{border-color:var(--accent);}
 textarea{resize:vertical; min-height:110px;}
 .field{display:flex; flex-direction:column;}
 
+/* ---------- QUOTE PAGE EXTRAS ---------- */
+.material-hint{
+  font-size:0.78rem;
+  color:var(--text-muted);
+  margin-top:8px;
+  line-height:1.5;
+}
+.wa-preview{
+  border:1px solid var(--border);
+  background:var(--surface);
+  padding:14px;
+}
+.wa-preview-label{
+  font-family:var(--font-mono);
+  font-size:0.66rem;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--text-dim);
+  margin-bottom:10px;
+}
+.wa-bubble{
+  position:relative;
+  background:var(--whatsapp-soft);
+  border:1px solid rgba(63,207,122,0.25);
+  padding:12px 14px;
+  font-family:var(--font-mono);
+  font-size:0.78rem;
+  line-height:1.6;
+  color:var(--text);
+  white-space:pre-wrap;
+  word-break:break-word;
+  border-radius:6px;
+}
+.wa-bubble::after{
+  content:'';
+  position:absolute;
+  bottom:-1px;
+  right:-1px;
+  width:26px; height:16px;
+  background:
+    linear-gradient(135deg, transparent 48%, var(--whatsapp) 50%, var(--whatsapp) 58%, transparent 60%);
+  opacity:0.7;
+}
+.quote-timeline{
+  margin-top:36px;
+  border-top:1px solid var(--border);
+  padding-top:24px;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+.qt-step{
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+}
+.qt-num{
+  font-family:var(--font-mono);
+  font-size:0.72rem;
+  color:var(--accent);
+  border:1px solid var(--accent-line);
+  padding:4px 7px;
+  border-radius:2px;
+  margin-top:2px;
+}
+.qt-step h4{
+  font-family:var(--font-display);
+  font-size:0.92rem;
+  font-weight:600;
+  margin-bottom:4px;
+}
+.qt-step p{
+  font-size:0.82rem;
+  color:var(--text-muted);
+  max-width:none !important;
+  margin-bottom:0 !important;
+}
+.quote-submit{
+  align-self:flex-start;
+  border:none;
+  cursor:pointer;
+  margin-top:2px;
+}
+
 /* ---------- FOOTER ---------- */
 footer{
   border-top:1px solid var(--border);
