@@ -1,8 +1,11 @@
+import { Suspense, lazy } from 'react'
 import { Link } from 'react-router-dom'
 import Hero from '../components/Hero.jsx'
 import Reveal from '../components/Reveal.jsx'
 import ProductCard from '../components/ProductCard.jsx'
 import { PRODUCTS, CATEGORIES, FEATURED_IDS } from '../data/products.js'
+
+const PrintDemo = lazy(() => import('../components/PrintDemo.jsx'))
 
 const featured = FEATURED_IDS.map((id) => PRODUCTS.find((p) => p.id === id)).filter(Boolean)
 
@@ -122,6 +125,23 @@ export default function Home() {
               <h3>Custom design from sketch</h3>
               <p>No file yet? Send a sketch or reference on WhatsApp and Shivesh will model it before printing.</p>
             </div>
+          </Reveal>
+        </div>
+      </section>
+
+      <section id="live-print">
+        <div className="wrap">
+          <Reveal className="section-head">
+            <div>
+              <div className="eyebrow">In the workshop</div>
+              <h2>Watch a print come to life</h2>
+            </div>
+            <p>A simulation of how every order is built — melted filament, laid down one layer at a time.</p>
+          </Reveal>
+          <Reveal>
+            <Suspense fallback={null}>
+              <PrintDemo />
+            </Suspense>
           </Reveal>
         </div>
       </section>
