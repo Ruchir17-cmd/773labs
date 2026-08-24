@@ -2,9 +2,14 @@ import { Link } from 'react-router-dom'
 import Hero from '../components/Hero.jsx'
 import Reveal from '../components/Reveal.jsx'
 import ProductCard from '../components/ProductCard.jsx'
-import { PRODUCTS, FEATURED_IDS } from '../data/products.js'
+import { PRODUCTS, CATEGORIES, FEATURED_IDS } from '../data/products.js'
 
 const featured = FEATURED_IDS.map((id) => PRODUCTS.find((p) => p.id === id)).filter(Boolean)
+
+const categoryCounts = CATEGORIES.map((cat) => ({
+  name: cat,
+  count: PRODUCTS.filter((p) => p.category === cat).length,
+}))
 
 export default function Home() {
   return (
@@ -48,6 +53,31 @@ export default function Home() {
           </Reveal>
           <Reveal className="featured-cta">
             <Link to="/shop" className="btn btn-ghost">View full catalog →</Link>
+          </Reveal>
+        </div>
+      </section>
+
+      <section id="categories">
+        <div className="wrap">
+          <Reveal className="section-head">
+            <div>
+              <div className="eyebrow">Catalog</div>
+              <h2>Browse by category</h2>
+            </div>
+            <p>Every design in the catalog, grouped. Pick a lane and start browsing.</p>
+          </Reveal>
+          <Reveal className="category-grid">
+            {categoryCounts.map((cat) => (
+              <Link
+                key={cat.name}
+                to={`/shop?category=${encodeURIComponent(cat.name)}`}
+                className="category-card"
+              >
+                <span className="cat-count">{String(cat.count).padStart(2, '0')} designs</span>
+                <h3>{cat.name}</h3>
+                <span className="cat-arrow" aria-hidden="true">→</span>
+              </Link>
+            ))}
           </Reveal>
         </div>
       </section>

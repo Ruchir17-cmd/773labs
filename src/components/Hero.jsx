@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+
+const HeroScene = lazy(() => import('./HeroScene.jsx'))
 
 export default function Hero() {
   const [coords, setCoords] = useState({ x: '128.400', y: '096.200', z: '042.860' })
@@ -20,6 +22,9 @@ export default function Hero() {
 
   return (
     <section className="hero">
+      <Suspense fallback={null}>
+        <HeroScene />
+      </Suspense>
       <div className="hero-grid-decor" aria-hidden="true"></div>
       <div className="wrap hero-inner">
         <div className="telemetry" aria-hidden="true">

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import Reveal from '../components/Reveal.jsx'
 import ProductCard from '../components/ProductCard.jsx'
 import { PRODUCTS, CATEGORIES } from '../data/products.js'
@@ -6,8 +7,12 @@ import { PRODUCTS, CATEGORIES } from '../data/products.js'
 const PAGE_SIZE = 12
 
 export default function Shop() {
+  const [searchParams] = useSearchParams()
+  const initialCategory = CATEGORIES.includes(searchParams.get('category'))
+    ? searchParams.get('category')
+    : 'All'
   const [query, setQuery] = useState('')
-  const [category, setCategory] = useState('All')
+  const [category, setCategory] = useState(initialCategory)
   const [visible, setVisible] = useState(PAGE_SIZE)
 
   const filtered = useMemo(() => {
