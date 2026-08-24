@@ -1,6 +1,6 @@
 // Seed catalog. Add more objects to this array to grow the shop —
-// nothing else in the app needs to change. `icon` controls which
-// line-art illustration renders on the card (see src/components/Icon.jsx).
+// nothing else in the app needs to change. `image` uses an asset from
+// public when available; otherwise `icon` renders the line-art fallback.
 
 export const CATEGORIES = [
   'Mechanical Parts & Brackets',
@@ -15,17 +15,17 @@ export const CATEGORIES = [
 
 export const PRODUCTS = [
   // Mechanical Parts & Brackets
-  { id: 'mp-01', name: 'Gearbox Housing v2', category: 'Mechanical Parts & Brackets', material: 'PETG', layerHeight: '0.16mm', printTime: '6h', price: 'From ₹799', icon: 'gear' },
-  { id: 'mp-02', name: 'M8 Cable Clip Set', category: 'Mechanical Parts & Brackets', material: 'PLA', layerHeight: '0.2mm', printTime: '1h', price: 'From ₹149', icon: 'bracket' },
-  { id: 'mp-03', name: 'Adjustable Phone Mount', category: 'Mechanical Parts & Brackets', material: 'PETG', layerHeight: '0.2mm', printTime: '3h', price: 'From ₹349', icon: 'bracket' },
+  { id: 'mp-01', name: 'Gearbox Housing v2', category: 'Mechanical Parts & Brackets', material: 'PETG', layerHeight: '0.16mm', printTime: '6h', price: 'From ₹799', icon: 'gear', image: '/Gearbox Housing v2.jpg' },
+  { id: 'mp-02', name: 'M8 Cable Clip Set', category: 'Mechanical Parts & Brackets', material: 'PLA', layerHeight: '0.2mm', printTime: '1h', price: 'From ₹149', icon: 'bracket', image: '/M8 Cable Clip Set.jpg' },
+  { id: 'mp-03', name: 'Adjustable Phone Mount', category: 'Mechanical Parts & Brackets', material: 'PETG', layerHeight: '0.2mm', printTime: '3h', price: 'From ₹349', icon: 'bracket', image: '/Adjustable Phone Mount.jpg' },
   { id: 'mp-04', name: 'Bearing Puller Tool', category: 'Mechanical Parts & Brackets', material: 'Nylon', layerHeight: '0.16mm', printTime: '4h', price: 'From ₹599', icon: 'gear' },
   { id: 'mp-05', name: 'Camera Tripod Adapter', category: 'Mechanical Parts & Brackets', material: 'PETG', layerHeight: '0.16mm', printTime: '2h', price: 'From ₹299', icon: 'bracket' },
-  { id: 'mp-06', name: 'Modular Tool Rack Bracket', category: 'Mechanical Parts & Brackets', material: 'PLA', layerHeight: '0.2mm', printTime: '3h', price: 'From ₹399', icon: 'bracket' },
+  { id: 'mp-06', name: 'Modular Tool Rack Bracket', category: 'Mechanical Parts & Brackets', material: 'PLA', layerHeight: '0.2mm', printTime: '3h', price: 'From ₹399', icon: 'bracket', image: '/Modular Tool Rack Bracket.jpg' },
 
   // Miniatures & Collectibles
   { id: 'mc-01', name: 'Articulated Dragon Figure', category: 'Miniatures & Collectibles', material: 'Resin', layerHeight: '0.05mm', printTime: '9h', price: 'From ₹899', icon: 'mini', image: '/dragon.jpg' },
-  { id: 'mc-02', name: 'Fantasy Wizard Miniature (32mm)', category: 'Miniatures & Collectibles', material: 'Resin', layerHeight: '0.03mm', printTime: '2h', price: 'From ₹249', icon: 'mini' },
-  { id: 'mc-03', name: 'Chess Set — Modern Geometric', category: 'Miniatures & Collectibles', material: 'PLA', layerHeight: '0.12mm', printTime: '10h', price: 'From ₹1,499', icon: 'mini' },
+  { id: 'mc-02', name: 'Fantasy Wizard Miniature (32mm)', category: 'Miniatures & Collectibles', material: 'Resin', layerHeight: '0.03mm', printTime: '2h', price: 'From ₹249', icon: 'mini', image: '/Fantasy Wizard Miniature (32mm).jpg' },
+  { id: 'mc-03', name: 'Chess Set — Modern Geometric', category: 'Miniatures & Collectibles', material: 'PLA', layerHeight: '0.12mm', printTime: '10h', price: 'From ₹1,499', icon: 'mini', image: '/Chess Set — Modern Geometric.jpg' },
   { id: 'mc-04', name: 'Sci-Fi Mech Miniature', category: 'Miniatures & Collectibles', material: 'Resin', layerHeight: '0.05mm', printTime: '3h', price: 'From ₹399', icon: 'mini' },
   { id: 'mc-05', name: 'Tabletop Terrain Ruins Set', category: 'Miniatures & Collectibles', material: 'PLA', layerHeight: '0.16mm', printTime: '8h', price: 'From ₹999', icon: 'building' },
   { id: 'mc-06', name: 'Collectible Bust — Warrior', category: 'Miniatures & Collectibles', material: 'Resin', layerHeight: '0.05mm', printTime: '6h', price: 'From ₹799', icon: 'mini' },
