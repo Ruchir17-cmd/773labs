@@ -47,12 +47,12 @@ export const PRODUCTS = [
   { id: 'dr-06', name: 'Landing Gear Skids', category: 'Drone & RC Parts', material: 'Nylon', layerHeight: '0.2mm', printTime: '2h', price: 'From ₹349', icon: 'drone' },
 
   // Home & Decor
-  { id: 'hd-01', name: 'Sculptural Single-Wall Vase', category: 'Home & Decor', material: 'Silk PLA', layerHeight: '0.28mm', printTime: '5h', price: 'From ₹599', icon: 'vase' },
-  { id: 'hd-02', name: 'Geometric Wall Planter', category: 'Home & Decor', material: 'PLA', layerHeight: '0.2mm', printTime: '4h', price: 'From ₹449', icon: 'vase' },
-  { id: 'hd-03', name: 'Modular Desk Organizer', category: 'Home & Decor', material: 'PETG', layerHeight: '0.2mm', printTime: '6h', price: 'From ₹699', icon: 'bracket' },
-  { id: 'hd-04', name: 'Articulated Lamp Shade', category: 'Home & Decor', material: 'PLA', layerHeight: '0.16mm', printTime: '7h', price: 'From ₹899', icon: 'vase' },
-  { id: 'hd-05', name: 'Coaster Set — Wave Pattern', category: 'Home & Decor', material: 'Silk PLA', layerHeight: '0.2mm', printTime: '2h', price: 'From ₹299', icon: 'vase' },
-  { id: 'hd-06', name: 'Minimalist Candle Holder', category: 'Home & Decor', material: 'PLA', layerHeight: '0.16mm', printTime: '3h', price: 'From ₹349', icon: 'vase' },
+  { id: 'hd-01', name: 'Sculptural Single-Wall Vase', category: 'Home & Decor', material: 'Silk PLA', layerHeight: '0.28mm', printTime: '5h', price: 'From ₹599', icon: 'vase', image: '/Sculptural Single-Wall Vase.jpg' },
+  { id: 'hd-02', name: 'Geometric Wall Planter', category: 'Home & Decor', material: 'PLA', layerHeight: '0.2mm', printTime: '4h', price: 'From ₹449', icon: 'vase', image: '/Geometric Wall Planter.jpg' },
+  { id: 'hd-03', name: 'Modular Desk Organizer', category: 'Home & Decor', material: 'PETG', layerHeight: '0.2mm', printTime: '6h', price: 'From ₹699', icon: 'bracket', image: '/Modular Desk Organizer.jpg' },
+  { id: 'hd-04', name: 'Articulated Lamp Shade', category: 'Home & Decor', material: 'PLA', layerHeight: '0.16mm', printTime: '7h', price: 'From ₹899', icon: 'vase', image: '/Articulated Lamp Shade.jpg' },
+  { id: 'hd-05', name: 'Coaster Set — Wave Pattern', category: 'Home & Decor', material: 'Silk PLA', layerHeight: '0.2mm', printTime: '2h', price: 'From ₹299', icon: 'vase', image: '/Coaster Set — Wave Pattern.jpg' },
+  { id: 'hd-06', name: 'Minimalist Candle Holder', category: 'Home & Decor', material: 'PLA', layerHeight: '0.16mm', printTime: '3h', price: 'From ₹349', icon: 'vase', image: '/Minimalist Candle Holder.jpg' },
 
   // Architecture Models
   { id: 'am-01', name: 'Massing Study Model', category: 'Architecture Models', material: 'PLA', layerHeight: '0.12mm', printTime: '9h', price: 'From ₹1,499', icon: 'building' },
