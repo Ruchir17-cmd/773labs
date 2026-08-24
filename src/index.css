@@ -1,4 +1,5 @@
 :root{
+  color-scheme:dark;
   --bg: #0B0D10;
   --surface: #14171C;
   --surface-2: #1B1F25;
@@ -817,6 +818,11 @@ textarea{resize:vertical; min-height:110px;}
 .field{display:flex; flex-direction:column;}
 
 /* ---------- QUOTE PAGE EXTRAS ---------- */
+.quote-direct{
+  margin-top:18px;
+  display:inline-flex;
+  align-self:flex-start;
+}
 .material-hint{
   font-size:0.78rem;
   color:var(--text-muted);
@@ -859,13 +865,21 @@ textarea{resize:vertical; min-height:110px;}
     linear-gradient(135deg, transparent 48%, var(--whatsapp) 50%, var(--whatsapp) 58%, transparent 60%);
   opacity:0.7;
 }
+.wa-bubble-placeholder{
+  color:var(--text-dim);
+  font-style:italic;
+  background:transparent;
+  border-style:dashed;
+  border-color:var(--border);
+}
+.wa-bubble-placeholder::after{display:none;}
 .quote-timeline{
-  margin-top:36px;
+  margin-top:56px;
+  padding-top:36px;
   border-top:1px solid var(--border);
-  padding-top:24px;
-  display:flex;
-  flex-direction:column;
-  gap:20px;
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:32px;
 }
 .qt-step{
   display:flex;
@@ -890,8 +904,6 @@ textarea{resize:vertical; min-height:110px;}
 .qt-step p{
   font-size:0.82rem;
   color:var(--text-muted);
-  max-width:none !important;
-  margin-bottom:0 !important;
 }
 .quote-submit{
   align-self:flex-start;

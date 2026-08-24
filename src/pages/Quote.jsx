@@ -57,6 +57,7 @@ export default function Quote() {
     () => buildQuoteMessage({ ...fields, projectType }),
     [fields, projectType]
   )
+  const hasContent = fields.name.trim() !== '' || fields.details.trim() !== ''
 
   function handleSubmit(e) {
     e.preventDefault()
@@ -66,34 +67,27 @@ export default function Quote() {
   return (
     <section id="quote" className="quote-page">
       <div className="wrap">
+        <Reveal className="section-head">
+          <div>
+            <div className="eyebrow">Custom quote</div>
+            <h2>Tell Shivesh what you need</h2>
+          </div>
+          <p>Fill this in and it opens WhatsApp with everything filled out — just hit send.</p>
+        </Reveal>
+
         <Reveal className="contact-wrap">
           <div className="contact-info">
-            <div className="eyebrow">Custom quote</div>
-            <h2 className="quote-heading">Tell Shivesh what you need</h2>
-            <p>Fill this in and it opens WhatsApp with everything filled out — just hit send. Or skip the form and message directly.</p>
+            <p>No forms going into a void — everything goes straight to Shivesh's WhatsApp, and you'll normally hear back within 24 hours.</p>
             <div className="contact-detail"><b>WhatsApp</b> +91 62604 28896</div>
             <div className="contact-detail"><b>Response time</b> usually within 24 hours</div>
             <a
-              className="btn btn-whatsapp"
-              style={{ marginTop: '18px', display: 'inline-flex' }}
+              className="btn btn-whatsapp quote-direct"
               href={waLink(buildGeneralMessage())}
               target="_blank"
               rel="noopener noreferrer"
             >
               Skip the form — chat directly
             </a>
-
-            <div className="quote-timeline">
-              {TIMELINE_STEPS.map((step) => (
-                <div key={step.num} className="qt-step">
-                  <span className="qt-num">{step.num}</span>
-                  <div>
-                    <h4>{step.title}</h4>
-                    <p>{step.text}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
 
           <form onSubmit={handleSubmit}>
@@ -178,15 +172,33 @@ export default function Quote() {
               />
             </div>
 
-            <div className="wa-preview">
+            <div className={`wa-preview ${hasContent ? '' : 'empty'}`}>
               <div className="wa-preview-label">What you'll send</div>
-              <div className="wa-bubble">{message}</div>
+              {hasContent ? (
+                <div className="wa-bubble">{message}</div>
+              ) : (
+                <div className="wa-bubble wa-bubble-placeholder">
+                  Your message preview will appear here as you type…
+                </div>
+              )}
             </div>
 
             <button type="submit" className="btn btn-primary quote-submit">
               Continue on WhatsApp →
             </button>
           </form>
+        </Reveal>
+
+        <Reveal className="quote-timeline">
+          {TIMELINE_STEPS.map((step) => (
+            <div key={step.num} className="qt-step">
+              <span className="qt-num">{step.num}</span>
+              <div>
+                <h4>{step.title}</h4>
+                <p>{step.text}</p>
+              </div>
+            </div>
+          ))}
         </Reveal>
       </div>
     </section>
