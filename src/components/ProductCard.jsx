@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import Icon from './Icon.jsx'
 import ProductModal from './ProductModal.jsx'
-import { waLink, buildOrderMessage } from '../data/whatsapp.js'
+import { waLink, trackSend, buildOrderMessage } from '../data/whatsapp.js'
 
 export default function ProductCard({ product }) {
   const [open, setOpen] = useState(false)
@@ -39,7 +39,10 @@ export default function ProductCard({ product }) {
             href={waLink(buildOrderMessage(product))}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation()
+              trackSend('order', buildOrderMessage(product))()
+            }}
           >
             Order on WhatsApp
           </a>

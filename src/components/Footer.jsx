@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { waLink, buildGeneralMessage, WHATSAPP_PHONE } from '../data/whatsapp.js'
+import { waLink, trackSend, buildGeneralMessage, WHATSAPP_PHONE } from '../data/whatsapp.js'
 
 export default function Footer() {
   const displayPhone = '+91 62604 28896'
@@ -28,7 +28,12 @@ export default function Footer() {
               <h4>Connect</h4>
               <ul>
                 <li>
-                  <a href={waLink(buildGeneralMessage())} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={waLink(buildGeneralMessage())}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={trackSend('general chat', buildGeneralMessage())}
+                  >
                     WhatsApp — {displayPhone}
                   </a>
                 </li>

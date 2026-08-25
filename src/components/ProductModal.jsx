@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Icon from './Icon.jsx'
-import { waLink, buildOrderMessage } from '../data/whatsapp.js'
+import { waLink, trackSend, buildOrderMessage } from '../data/whatsapp.js'
 
 export default function ProductModal({ product, onClose }) {
   const [zoomed, setZoomed] = useState(false)
@@ -69,6 +69,7 @@ export default function ProductModal({ product, onClose }) {
           <a
             className="btn btn-whatsapp"
             href={waLink(buildOrderMessage(product))}
+            onClick={trackSend('order', buildOrderMessage(product))}
             target="_blank"
             rel="noopener noreferrer"
           >

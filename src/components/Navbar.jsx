@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { waLink, buildGeneralMessage } from '../data/whatsapp.js'
+import { waLink, trackSend, buildGeneralMessage } from '../data/whatsapp.js'
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
@@ -23,7 +23,10 @@ export default function Navbar() {
               href={waLink(buildGeneralMessage())}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                trackSend('general chat', buildGeneralMessage())()
+                setOpen(false)
+              }}
             >
               Chat on WhatsApp
             </a>
@@ -35,6 +38,7 @@ export default function Navbar() {
           href={waLink(buildGeneralMessage())}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={trackSend('general chat', buildGeneralMessage())}
         >
           Chat on WhatsApp
         </a>

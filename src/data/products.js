@@ -93,6 +93,16 @@ export const PRODUCTS = [
   { id: 'wp-03', name: 'Lightsaber Hilt — Skywalker', category: 'Weapons', material: 'Resin', layerHeight: '0.1mm', printTime: '8h', price: 'From ₹1,499', icon: 'vase' },
   { id: 'wp-04', name: 'Stormbreaker Axe', category: 'Weapons', material: 'PETG', layerHeight: '0.16mm', printTime: '16h', price: 'From ₹2,999', icon: 'bracket' },
   { id: 'wp-05', name: 'Wolverine Claws (Pair)', category: 'Weapons', material: 'ABS', layerHeight: '0.16mm', printTime: '6h', price: 'From ₹999', icon: 'grip' },
+
+  // From Maker's World
+  { id: 'mw-01', name: 'Articulated Crystal Dragon', category: 'Miniatures & Collectibles', material: 'PLA', layerHeight: '0.2mm', printTime: '5h', price: 'From ₹699', icon: 'mini', image: "/MakerWorld - Articulated Crystal Dragon.jpg" },
+  { id: 'mw-02', name: 'Flexi Articulated Axolotl', category: 'Miniatures & Collectibles', material: 'PLA', layerHeight: '0.16mm', printTime: '3h', price: 'From ₹449', icon: 'mini', image: "/MakerWorld - Flexi Articulated Axolotl.jpg" },
+  { id: 'mw-03', name: 'Infinite Fidget Cube', category: 'Miniatures & Collectibles', material: 'PETG', layerHeight: '0.16mm', printTime: '2h', price: 'From ₹249', icon: 'grip', image: "/MakerWorld - Infinite Fidget Cube.jpg" },
+  { id: 'mw-04', name: 'Hexagon Wall Planter Set', category: 'Home & Decor', material: 'PLA', layerHeight: '0.2mm', printTime: '6h', price: 'From ₹599', icon: 'vase', image: "/MakerWorld - Hexagon Wall Planter Set.jpg" },
+  { id: 'mw-05', name: 'Moon Lamp Lithophane', category: 'Home & Decor', material: 'PLA', layerHeight: '0.12mm', printTime: '9h', price: 'From ₹1,099', icon: 'vase', image: "/MakerWorld - Moon Lamp Lithophane.jpg" },
+  { id: 'mw-06', name: 'Headphone Stand — Curve', category: 'Custom Enclosures & Mounts', material: 'PETG', layerHeight: '0.2mm', printTime: '5h', price: 'From ₹499', icon: 'bracket', image: "/MakerWorld - Headphone Stand — Curve.jpg" },
+  { id: 'mw-07', name: 'Foldable Phone Stand', category: 'Mechanical Parts & Brackets', material: 'PLA', layerHeight: '0.2mm', printTime: '1h', price: 'From ₹199', icon: 'bracket', image: "/MakerWorld - Foldable Phone Stand.jpg" },
+  { id: 'mw-08', name: 'Dragon Dice Tower', category: 'Miniatures & Collectibles', material: 'PLA', layerHeight: '0.16mm', printTime: '8h', price: 'From ₹899', icon: 'building', image: "/MakerWorld - Dragon Dice Tower.jpg" },
 ]
 
 // The two designs shown on the homepage — pick any two ids from PRODUCTS.

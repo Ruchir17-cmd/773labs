@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import Reveal from '../components/Reveal.jsx'
-import { waLink, buildQuoteMessage, buildGeneralMessage } from '../data/whatsapp.js'
+import { waLink, trackSend, buildQuoteMessage, buildGeneralMessage } from '../data/whatsapp.js'
 
 const initialState = {
   name: '',
@@ -61,6 +61,7 @@ export default function Quote() {
 
   function handleSubmit(e) {
     e.preventDefault()
+    trackSend('custom quote', message)()
     window.open(waLink(message), '_blank', 'noopener,noreferrer')
   }
 
@@ -83,6 +84,7 @@ export default function Quote() {
             <a
               className="btn btn-whatsapp quote-direct"
               href={waLink(buildGeneralMessage())}
+              onClick={trackSend('general chat', buildGeneralMessage())}
               target="_blank"
               rel="noopener noreferrer"
             >
