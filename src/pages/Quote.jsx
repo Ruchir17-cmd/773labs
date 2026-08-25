@@ -35,7 +35,7 @@ const TIMELINE_STEPS = [
   },
   {
     num: '02',
-    title: 'Shivesh replies with a price',
+    title: '773 Labs replies with a price',
     text: 'Final quote, timeline, and material options — usually within 24 hours.',
   },
   {
@@ -70,14 +70,14 @@ export default function Quote() {
         <Reveal className="section-head">
           <div>
             <div className="eyebrow">Custom quote</div>
-            <h2>Tell Shivesh what you need</h2>
+            <h2>Tell 773 Labs what you need</h2>
           </div>
           <p>Fill this in and it opens WhatsApp with everything filled out — just hit send.</p>
         </Reveal>
 
         <Reveal className="contact-wrap">
           <div className="contact-info">
-            <p>No forms going into a void — everything goes straight to Shivesh's WhatsApp, and you'll normally hear back within 24 hours.</p>
+            <p>No forms going into a void — everything goes straight to 773 Labs' WhatsApp, and you'll normally hear back within 24 hours.</p>
             <div className="contact-detail"><b>WhatsApp</b> +91 62604 28896</div>
             <div className="contact-detail"><b>Response time</b> usually within 24 hours</div>
             <a
@@ -147,7 +147,7 @@ export default function Quote() {
                 </select>
                 <p className="material-hint" aria-live="polite">
                   {MATERIAL_GUIDE[fields.material] ||
-                    'No idea which to pick? Leave this as-is and Shivesh will recommend one based on your project.'}
+                    'No idea which to pick? Leave this as-is and 773 Labs will recommend one based on your project.'}
                 </p>
               </div>
               <div className="field">

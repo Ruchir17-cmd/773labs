@@ -83,7 +83,7 @@ export default function Shop() {
           </div>
         ) : (
           <div className="empty-state">
-            <p>No designs match that search. Try a different term, or send Shivesh a custom quote request.</p>
+            <p>No designs match that search. Try a different term, or send 773 Labs a custom quote request.</p>
           </div>
         )}
 

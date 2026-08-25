@@ -10,7 +10,7 @@ export default function Navbar() {
       <nav>
         <Link to="/" className="brand" onClick={() => setOpen(false)}>
           <span className="dot-grid"><span></span><span></span><span></span><span></span></span>
-          SHIVESH.3D
+          773 LABS
         </Link>
 
         <ul className={`nav-links ${open ? 'open' : ''}`}>

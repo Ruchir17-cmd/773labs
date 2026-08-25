@@ -47,7 +47,7 @@ export default function Home() {
               <div className="eyebrow">Featured</div>
               <h2>A couple of favourites</h2>
             </div>
-            <p>Two designs Shivesh keeps coming back to. See everything else in the full catalog.</p>
+            <p>Two designs 773 Labs keeps coming back to. See everything else in the full catalog.</p>
           </Reveal>
           <Reveal className="featured-grid">
             {featured.map((p) => (
@@ -90,7 +90,7 @@ export default function Home() {
           <Reveal className="section-head">
             <div>
               <div className="eyebrow">Services</div>
-              <h2>What Shivesh prints</h2>
+              <h2>What 773 Labs prints</h2>
             </div>
             <p>From a single test fit to a batch of parts, quoted the same way every time.</p>
           </Reveal>
@@ -123,7 +123,7 @@ export default function Home() {
             <div className="service-card">
               <span className="idx">06</span>
               <h3>Custom design from sketch</h3>
-              <p>No file yet? Send a sketch or reference on WhatsApp and Shivesh will model it before printing.</p>
+              <p>No file yet? Send a sketch or reference on WhatsApp and 773 Labs will model it before printing.</p>
             </div>
           </Reveal>
         </div>
@@ -153,7 +153,7 @@ export default function Home() {
               <div className="eyebrow">How it works</div>
               <h2>From catalog to doorstep</h2>
             </div>
-            <p>No accounts, no checkout — everything's confirmed with Shivesh directly.</p>
+            <p>No accounts, no checkout — everything's confirmed with 773 Labs directly.</p>
           </Reveal>
           <Reveal className="process-list">
             <div className="process-step">
@@ -169,7 +169,7 @@ export default function Home() {
             <div className="process-step">
               <span className="num">03</span>
               <h3>Confirm price &amp; details</h3>
-              <p>Shivesh replies with final pricing, timeline, and any options to choose from.</p>
+              <p>773 Labs replies with final pricing, timeline, and any options to choose from.</p>
             </div>
             <div className="process-step">
               <span className="num">04</span>
@@ -210,7 +210,7 @@ export default function Home() {
           <Reveal className="cta-banner">
             <div>
               <h2>Have something specific in mind?</h2>
-              <p>If it's not in the catalog yet, get a custom quote and Shivesh will design it from scratch.</p>
+              <p>If it's not in the catalog yet, get a custom quote and 773 Labs will design it from scratch.</p>
             </div>
             <Link to="/quote" className="btn btn-primary">Get a custom quote →</Link>
           </Reveal>

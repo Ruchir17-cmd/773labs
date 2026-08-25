@@ -8,12 +8,12 @@ export function waLink(message) {
 }
 
 export function buildOrderMessage(product) {
-  return `Hi Shivesh! I'd like to order this design:\n\n${product.name} (${product.category})\nMaterial: ${product.material}\nStarting price: ${product.price}\n\nCould you confirm the price and turnaround for my order?`
+  return `Hi 773 Labs! I'd like to order this design:\n\n${product.name} (${product.category})\nMaterial: ${product.material}\nStarting price: ${product.price}\n\nCould you confirm the price and turnaround for my order?`
 }
 
 export function buildQuoteMessage(fields) {
   const lines = [
-    'Hi Shivesh! I\'d like a custom quote.',
+    'Hi 773 Labs! I\'d like a custom quote.',
     '',
     `Name: ${fields.name || '-'}`,
     fields.projectType ? `Project type: ${fields.projectType}` : null,
@@ -26,5 +26,5 @@ export function buildQuoteMessage(fields) {
 }
 
 export function buildGeneralMessage() {
-  return "Hi Shivesh! I have a question about your 3D printed designs."
+  return "Hi 773 Labs! I have a question about your 3D printed designs."
 }

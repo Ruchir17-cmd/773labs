@@ -63,7 +63,7 @@ export default function ProductModal({ product, onClose }) {
             </div>
           </dl>
           <p className="modal-note">
-            Final price depends on size, infill, and quantity. Message Shivesh to confirm the
+            Final price depends on size, infill, and quantity. Message 773 Labs to confirm the
             details before ordering.
           </p>
           <a

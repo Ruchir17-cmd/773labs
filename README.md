@@ -1,4 +1,4 @@
-# Shivesh.3D
+# 773 LABS
 
 A React + Vite storefront for browsing 3D printed designs. There's no backend —
 every "order" and "quote" button opens WhatsApp with a pre-filled message to
@@ -41,7 +41,7 @@ This outputs a static `dist/` folder you can upload to any static host
 ## Notes
 
 - Testimonials, prices, and printer materials are placeholders — replace them
-  with real client feedback and Shivesh's actual pricing.
+  with real client feedback and 773 Labs' actual pricing.
 - The product images are simple line-art icons, not real photos. Swapping in
   real photos would mean replacing `<Icon name="..." />` in
   `src/components/ProductCard.jsx` with an `<img>` tag once photos exist.

@@ -11,7 +11,7 @@ export default function Footer() {
           <div>
             <Link to="/" className="brand">
               <span className="dot-grid"><span></span><span></span><span></span><span></span></span>
-              SHIVESH.3D
+              773 LABS
             </Link>
             <p className="footer-tagline">Custom 3D printed designs, made to order — browse the catalog and order straight on WhatsApp.</p>
           </div>
@@ -33,13 +33,13 @@ export default function Footer() {
                   </a>
                 </li>
                 <li><a href="#">Instagram</a></li>
-                <li><a href="mailto:hello@shivesh3d.studio">Email</a></li>
+                <li><a href="mailto:hello@773labs.studio">Email</a></li>
               </ul>
             </div>
           </div>
         </div>
         <div className="footer-bottom">
-          <span>© 2026 Shivesh.3D — all designs printed to order.</span>
+          <span>© 2026 773 LABS — all designs printed to order.</span>
           <span>Orders handled on WhatsApp</span>
         </div>
       </div>

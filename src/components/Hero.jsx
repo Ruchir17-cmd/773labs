@@ -40,7 +40,7 @@ export default function Hero() {
           <span className="hero-line"><span>Zero guesswork.</span><span className="nozzle" aria-hidden="true"></span></span>
         </h1>
         <p className="lede">
-          Browse Shivesh's catalog of printable designs — prototypes, props, miniatures, and more.
+          Browse 773 Labs' catalog of printable designs — prototypes, props, miniatures, and more.
           Pick what you want and order it directly on WhatsApp.
         </p>
         <div className="hero-ctas">
