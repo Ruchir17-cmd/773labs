@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import Icon from './Icon.jsx'
 import ProductModal from './ProductModal.jsx'
 import { waLink, trackSend, buildOrderMessage } from '../data/whatsapp.js'
 
 export default function ProductCard({ product }) {
   const [open, setOpen] = useState(false)
+  const closeModal = useCallback(() => setOpen(false), [])
 
   return (
     <div
@@ -48,7 +49,7 @@ export default function ProductCard({ product }) {
           </a>
         </div>
       </div>
-      {open && <ProductModal product={product} onClose={() => setOpen(false)} />}
+      {open && <ProductModal product={product} onClose={closeModal} />}
     </div>
   )
 }

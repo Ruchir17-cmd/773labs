@@ -1,13 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import Icon from './Icon.jsx'
 import { waLink, trackSend, buildOrderMessage } from '../data/whatsapp.js'
 
 export default function ProductModal({ product, onClose }) {
   const [zoomed, setZoomed] = useState(false)
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
 
   useEffect(() => {
     function handleKey(e) {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') onCloseRef.current()
     }
     document.addEventListener('keydown', handleKey)
     document.body.style.overflow = 'hidden'
@@ -15,10 +18,16 @@ export default function ProductModal({ product, onClose }) {
       document.removeEventListener('keydown', handleKey)
       document.body.style.overflow = ''
     }
-  }, [onClose])
+  }, [])
 
-  return (
-    <div className="modal-backdrop" onClick={onClose} role="presentation">
+  return createPortal(
+    <div
+      className="modal-backdrop"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onCloseRef.current()
+      }}
+      role="presentation"
+    >
       <div
         className={`modal ${zoomed ? 'zoomed' : ''}`}
         role="dialog"
@@ -77,6 +86,7 @@ export default function ProductModal({ product, onClose }) {
           </a>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
