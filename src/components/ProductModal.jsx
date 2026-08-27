@@ -5,6 +5,9 @@ import { waLink, trackSend, buildOrderMessage } from '../data/whatsapp.js'
 
 export default function ProductModal({ product, onClose }) {
   const [zoomed, setZoomed] = useState(false)
+  const [imageFailed, setImageFailed] = useState(false)
+  const gallery = product.gallery?.length ? product.gallery : product.image ? [product.image] : []
+  const [activeImage, setActiveImage] = useState(gallery[0])
   const onCloseRef = useRef(onClose)
   onCloseRef.current = onClose
 
@@ -39,10 +42,30 @@ export default function ProductModal({ product, onClose }) {
           ×
         </button>
 
-        {product.image ? (
-          <div className="modal-visual blueprint-bg" onClick={() => setZoomed((z) => !z)}>
-            <img src={product.image} alt={product.name} />
-            <span className="zoom-hint">{zoomed ? 'Click to shrink' : 'Click to zoom'}</span>
+        {activeImage && !imageFailed ? (
+          <div className="modal-media">
+            <div className="modal-visual blueprint-bg" onClick={() => setZoomed((z) => !z)}>
+              <img src={activeImage} alt={product.name} onError={() => setImageFailed(true)} />
+              <span className="zoom-hint">{zoomed ? 'Click to shrink' : 'Click to zoom'}</span>
+            </div>
+            {gallery.length > 1 && (
+              <div className="modal-thumbnails" aria-label="Product photos">
+                {gallery.map((image, index) => (
+                  <button
+                    key={image}
+                    className={`modal-thumbnail ${activeImage === image ? 'active' : ''}`}
+                    onClick={() => {
+                      setActiveImage(image)
+                      setImageFailed(false)
+                      setZoomed(false)
+                    }}
+                    aria-label={`View product photo ${index + 1}`}
+                  >
+                    <img src={image} alt="" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         ) : (
           <div className="modal-visual modal-visual-icon blueprint-bg">

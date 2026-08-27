@@ -5,6 +5,7 @@ import { waLink, trackSend, buildOrderMessage } from '../data/whatsapp.js'
 
 export default function ProductCard({ product }) {
   const [open, setOpen] = useState(false)
+  const [imageFailed, setImageFailed] = useState(false)
   const closeModal = useCallback(() => setOpen(false), [])
 
   return (
@@ -19,8 +20,8 @@ export default function ProductCard({ product }) {
       aria-label={`View details for ${product.name}`}
     >
       <div className="product-visual blueprint-bg">
-        {product.image ? (
-          <img src={product.image} alt={product.name} loading="lazy" decoding="async" />
+        {product.image && !imageFailed ? (
+          <img src={product.image} alt={product.name} loading="lazy" decoding="async" onError={() => setImageFailed(true)} />
         ) : (
           <Icon name={product.icon} />
         )}

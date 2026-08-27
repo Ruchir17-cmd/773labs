@@ -87,6 +87,9 @@ export const PRODUCTS = [
   { id: 'ch-04', name: 'Spider-Man', category: 'Characters', material: 'Resin', layerHeight: '0.05mm', printTime: '10h', price: 'From ₹1,499', icon: 'mini' },
   { id: 'ch-05', name: 'Gandalf', category: 'Characters', material: 'PLA', layerHeight: '0.12mm', printTime: '4h', price: 'From ₹599', icon: 'mini' },
 
+  // Featured product
+  { id: 'sp-01', name: 'Black Spider-Man Headphone Holder', category: 'Home & Decor', material: 'PLA', layerHeight: '0.16mm', printTime: '10h', price: '₹3,000', icon: 'helmet', image: '/fr.jpeg', gallery: ['/fr.jpeg', '/fs.jpeg', '/new.jpeg'] },
+
   // Weapons (Movies & TV)
   { id: 'wp-01', name: 'Mjolnir — Thor\u2019s Hammer', category: 'Weapons', material: 'PLA', layerHeight: '0.16mm', printTime: '12h', price: 'From ₹1,799', icon: 'gear' },
   { id: 'wp-02', name: 'Captain America\u2019s Shield', category: 'Weapons', material: 'PLA', layerHeight: '0.2mm', printTime: '14h', price: 'From ₹2,499', icon: 'helmet' },
@@ -106,4 +109,4 @@ export const PRODUCTS = [
 ]
 
 // The two designs shown on the homepage — pick any two ids from PRODUCTS.
-export const FEATURED_IDS = ['cp-01', 'mc-01']
+export const FEATURED_IDS = ['sp-01', 'cp-01']
