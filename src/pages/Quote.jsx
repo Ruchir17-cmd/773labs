@@ -2,206 +2,115 @@ import { useMemo, useState } from 'react'
 import Reveal from '../components/Reveal.jsx'
 import { waLink, trackSend, buildQuoteMessage, buildGeneralMessage } from '../data/whatsapp.js'
 
-const initialState = {
-  name: '',
-  details: '',
-  material: 'Not sure — advise me',
-  quantity: 1,
-  deadline: '',
-}
-
-const PROJECT_TYPES = [
-  'Prop / Cosplay part',
-  'Miniature / Figurine',
-  'Functional / Replacement part',
-  'Decor / Gift',
-  'Something else',
+const PROJECTS = [
+  { id: 'functional', label: 'Functional part', note: 'Brackets, adapters, replacements', icon: '01' },
+  { id: 'prop', label: 'Prop or cosplay', note: 'Wearables, replicas, costume parts', icon: '02' },
+  { id: 'model', label: 'Model or miniature', note: 'Characters, terrain, display pieces', icon: '03' },
+  { id: 'decor', label: 'Decor or gift', note: 'Objects for home, desk, or gifting', icon: '04' },
 ]
 
-const MATERIAL_GUIDE = {
-  PLA: 'Easy to print, great detail. Best for decorative pieces, miniatures, and display models.',
-  PETG: 'Tough and weather-resistant. Best for functional parts, brackets, and outdoor use.',
-  ABS: 'Heat-resistant and strong. Best for parts that take a beating — tools, car mounts, props.',
-  TPU: 'Flexible rubber-like. Best for grips, phone cases, cushions, and wearables.',
-  Nylon: 'Extremely durable engineering filament. Best for gears and high-stress mechanical parts.',
-  Resin: 'Ultra-fine detail. Best for miniatures, characters, jewelry, and precision work.',
-}
-
-const TIMELINE_STEPS = [
-  {
-    num: '01',
-    title: 'You send the brief',
-    text: 'This form opens WhatsApp with everything filled in — add photos or file links in the chat.',
-  },
-  {
-    num: '02',
-    title: '773 Labs replies with a price',
-    text: 'Final quote, timeline, and material options — usually within 24 hours.',
-  },
-  {
-    num: '03',
-    title: 'Printed & shipped',
-    text: 'Once confirmed, your part is printed, checked, packed, and on its way.',
-  },
+const SIZES = [
+  { id: 'small', label: 'Small', note: 'Under 10 cm', price: 450 },
+  { id: 'medium', label: 'Medium', note: '10 - 20 cm', price: 950 },
+  { id: 'large', label: 'Large', note: '20 - 35 cm', price: 1850 },
+  { id: 'xl', label: 'Oversized', note: 'Over 35 cm / multi-part', price: 3200 },
 ]
+
+const MATERIALS = [
+  { id: 'pla', label: 'PLA', note: 'Clean detail, best value', multiplier: 1 },
+  { id: 'petg', label: 'PETG', note: 'Tough and weather-resistant', multiplier: 1.18 },
+  { id: 'abs', label: 'ABS', note: 'Heat-resistant engineering plastic', multiplier: 1.3 },
+  { id: 'resin', label: 'Resin', note: 'Highest detail for models', multiplier: 1.45 },
+  { id: 'unsure', label: 'You choose', note: 'Let 773 Labs recommend', multiplier: 1.08 },
+]
+
+const initialState = { project: '', size: '', material: 'unsure', quantity: 1, name: '', details: '', deadline: '' }
+
+function formatPrice(value) {
+  return `Rs. ${Math.round(value).toLocaleString('en-IN')}`
+}
 
 export default function Quote() {
   const [fields, setFields] = useState(initialState)
-  const [projectType, setProjectType] = useState('')
+  const [step, setStep] = useState(0)
 
-  function update(key, value) {
-    setFields((f) => ({ ...f, [key]: value }))
+  const update = (key, value) => setFields((current) => ({ ...current, [key]: value }))
+  const project = PROJECTS.find((item) => item.id === fields.project)
+  const size = SIZES.find((item) => item.id === fields.size)
+  const material = MATERIALS.find((item) => item.id === fields.material)
+  const quantity = Math.max(1, Number(fields.quantity) || 1)
+  const estimate = useMemo(() => {
+    if (!size || !material) return null
+    const unit = size.price * material.multiplier
+    const discount = quantity >= 25 ? 0.8 : quantity >= 10 ? 0.88 : quantity >= 5 ? 0.94 : 1
+    const setup = quantity > 1 ? 350 : 0
+    const total = (unit * quantity * discount) + setup
+    return { low: total * 0.88, high: total * 1.12, unit: total / quantity }
+  }, [size, material, quantity])
+
+  const message = useMemo(() => buildQuoteMessage({
+    name: fields.name,
+    details: fields.details,
+    material: material?.label || 'You choose',
+    quantity,
+    deadline: fields.deadline,
+    projectType: project?.label,
+    size: size?.label,
+    estimate: estimate ? `${formatPrice(estimate.low)} - ${formatPrice(estimate.high)}` : '',
+  }), [fields, material, quantity, project, size, estimate])
+
+  const complete = step === 4
+
+  function choose(key, value) {
+    update(key, value)
+    setStep((current) => current + 1)
   }
 
-  const message = useMemo(
-    () => buildQuoteMessage({ ...fields, projectType }),
-    [fields, projectType]
-  )
-  const hasContent = fields.name.trim() !== '' || fields.details.trim() !== ''
-
-  function handleSubmit(e) {
-    e.preventDefault()
-    trackSend('custom quote', message)()
+  function handleSubmit(event) {
+    event.preventDefault()
+    trackSend('custom quote agent', message)()
     window.open(waLink(message), '_blank', 'noopener,noreferrer')
   }
 
   return (
-    <section id="quote" className="quote-page">
+    <section id="quote" className="quote-page agent-page">
       <div className="wrap">
-        <Reveal className="section-head">
+        <Reveal className="agent-intro">
           <div>
-            <div className="eyebrow">Custom quote</div>
-            <h2>Tell 773 Labs what you need</h2>
+            <div className="eyebrow">Quote agent / online now</div>
+            <h1>Turn an idea into a<br /><em>printable plan.</em></h1>
+            <p>Answer four quick questions. I will recommend a material, calculate a working estimate, and prepare your brief for the 773 Labs team.</p>
           </div>
-          <p>Fill this in and it opens WhatsApp with everything filled out — just hit send.</p>
+          <div className="agent-status"><span className="status-dot"></span> 773 QUOTE AGENT <small>v1.0</small></div>
         </Reveal>
 
-        <Reveal className="contact-wrap">
-          <div className="contact-info">
-            <p>No forms going into a void — everything goes straight to 773 Labs' WhatsApp, and you'll normally hear back within 24 hours.</p>
-            <div className="contact-detail"><b>WhatsApp</b> +91 62604 28896</div>
-            <div className="contact-detail"><b>Response time</b> usually within 24 hours</div>
-            <a
-              className="btn btn-whatsapp quote-direct"
-              href={waLink(buildGeneralMessage())}
-              onClick={trackSend('general chat', buildGeneralMessage())}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Skip the form — chat directly
-            </a>
+        <Reveal className="agent-shell">
+          <div className="agent-chat">
+            <div className="chat-top"><span className="agent-avatar">773</span><div><b>Print planner</b><small>Guided estimate for your project</small></div><span className="live-pill">LIVE</span></div>
+            <div className="chat-body">
+              <div className="agent-message"><span className="message-label">PRINT PLANNER</span>Let&apos;s scope this properly. What are we making?</div>
+
+              {step >= 1 && project && <div className="user-choice">{project.label}</div>}
+              {step === 0 && <div className="choice-grid">{PROJECTS.map((item) => <button key={item.id} type="button" className="choice-card" onClick={() => choose('project', item.id)}><span>{item.icon}</span><b>{item.label}</b><small>{item.note}</small></button>)}</div>}
+
+              {step >= 1 && <div className="agent-message"><span className="message-label">PRINT PLANNER</span>How big is the finished piece? This helps me estimate print time and material.</div>}
+              {step === 1 && <div className="choice-grid size-grid">{SIZES.map((item) => <button key={item.id} type="button" className="choice-card" onClick={() => choose('size', item.id)}><b>{item.label}</b><small>{item.note}</small></button>)}</div>}
+
+              {step >= 2 && size && <div className="user-choice">{size.label} / {size.note}</div>}
+              {step >= 2 && <div className="agent-message"><span className="message-label">PRINT PLANNER</span>Which material sounds right? If you&apos;re unsure, I&apos;ll make the call from the use case.</div>}
+              {step === 2 && <div className="choice-grid material-grid">{MATERIALS.map((item) => <button key={item.id} type="button" className="choice-card" onClick={() => choose('material', item.id)}><b>{item.label}</b><small>{item.note}</small></button>)}</div>}
+
+              {step >= 3 && material && <div className="user-choice">{material.label} / {material.note}</div>}
+              {step >= 3 && <div className="agent-message"><span className="message-label">PRINT PLANNER</span>Last details. Tell me how many you need and what the part should do.</div>}
+              {step === 3 && <form className="agent-form" onSubmit={(event) => { event.preventDefault(); setStep(4) }}><div className="form-row"><div className="field"><label htmlFor="agent-quantity">Quantity</label><input id="agent-quantity" type="number" min="1" value={fields.quantity} onChange={(event) => update('quantity', event.target.value)} /></div><div className="field"><label htmlFor="agent-name">Your name</label><input id="agent-name" required value={fields.name} onChange={(event) => update('name', event.target.value)} /></div></div><div className="field"><label htmlFor="agent-details">The brief</label><textarea id="agent-details" required placeholder="Dimensions, what it needs to do, or a link to your file..." value={fields.details} onChange={(event) => update('details', event.target.value)} /></div><div className="field"><label htmlFor="agent-deadline">Needed by (optional)</label><input id="agent-deadline" type="date" value={fields.deadline} onChange={(event) => update('deadline', event.target.value)} /></div><button className="btn btn-primary agent-next" type="submit">Build my estimate <span>→</span></button></form>}
+
+              {complete && <><div className="user-choice">{fields.name}&apos;s {project?.label.toLowerCase()} / {quantity} unit{quantity > 1 ? 's' : ''}</div><div className="agent-message final-message"><span className="message-label">ESTIMATE READY</span>Based on your brief, here&apos;s a sensible starting point. The team will confirm this against your file before printing.<div className="estimate-inline"><small>WORKING RANGE</small><strong>{formatPrice(estimate.low)} - {formatPrice(estimate.high)}</strong><span>Material: {material.label} &nbsp; · &nbsp; approx. {quantity} unit{quantity > 1 ? 's' : ''}</span></div></div><button className="btn btn-whatsapp agent-submit" type="button" onClick={handleSubmit}>Send brief to 773 Labs <span>↗</span></button><button className="start-over" type="button" onClick={() => { setFields(initialState); setStep(0) }}>Start another quote</button></>}
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit}>
-            <div className="field">
-              <label htmlFor="name">Name</label>
-              <input
-                type="text"
-                id="name"
-                required
-                value={fields.name}
-                onChange={(e) => update('name', e.target.value)}
-              />
-            </div>
-
-            <div className="field">
-              <label>Project type</label>
-              <div className="chip-row">
-                {PROJECT_TYPES.map((type) => (
-                  <button
-                    key={type}
-                    type="button"
-                    className={`chip ${projectType === type ? 'active' : ''}`}
-                    onClick={() => setProjectType((t) => (t === type ? '' : type))}
-                  >
-                    {type}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="field">
-              <label htmlFor="details">Project details</label>
-              <textarea
-                id="details"
-                placeholder="What are you looking to get printed? Add a link to a file or reference image if you have one."
-                required
-                value={fields.details}
-                onChange={(e) => update('details', e.target.value)}
-              />
-            </div>
-
-            <div className="form-row">
-              <div className="field">
-                <label htmlFor="material">Material preference</label>
-                <select
-                  id="material"
-                  value={fields.material}
-                  onChange={(e) => update('material', e.target.value)}
-                >
-                  <option>Not sure — advise me</option>
-                  <option>PLA</option>
-                  <option>PETG</option>
-                  <option>ABS</option>
-                  <option>TPU</option>
-                  <option>Nylon</option>
-                  <option>Resin</option>
-                </select>
-                <p className="material-hint" aria-live="polite">
-                  {MATERIAL_GUIDE[fields.material] ||
-                    'No idea which to pick? Leave this as-is and 773 Labs will recommend one based on your project.'}
-                </p>
-              </div>
-              <div className="field">
-                <label htmlFor="quantity">Quantity</label>
-                <input
-                  type="number"
-                  id="quantity"
-                  min="1"
-                  value={fields.quantity}
-                  onChange={(e) => update('quantity', e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="field">
-              <label htmlFor="deadline">Deadline (optional)</label>
-              <input
-                type="date"
-                id="deadline"
-                value={fields.deadline}
-                onChange={(e) => update('deadline', e.target.value)}
-              />
-            </div>
-
-            <div className={`wa-preview ${hasContent ? '' : 'empty'}`}>
-              <div className="wa-preview-label">What you'll send</div>
-              {hasContent ? (
-                <div className="wa-bubble">{message}</div>
-              ) : (
-                <div className="wa-bubble wa-bubble-placeholder">
-                  Your message preview will appear here as you type…
-                </div>
-              )}
-            </div>
-
-            <button type="submit" className="btn btn-primary quote-submit">
-              Continue on WhatsApp →
-            </button>
-          </form>
+          <aside className="estimate-panel"><div className="panel-kicker">LIVE ESTIMATE</div><div className="estimate-total">{estimate ? <><small>EXPECTED RANGE</small><strong>{formatPrice(estimate.low)}</strong><b>to {formatPrice(estimate.high)}</b></> : <><strong>--</strong><span>Answer the prompts<br />to unlock pricing</span></>}</div><div className="estimate-lines"><div><span>Project</span><b>{project?.label || 'Not selected'}</b></div><div><span>Scale</span><b>{size?.label || 'Not selected'}</b></div><div><span>Material</span><b>{material?.label || 'Recommended'}</b></div><div><span>Quantity</span><b>{quantity} unit{quantity > 1 ? 's' : ''}</b></div></div><div className="estimate-note">Includes print time and material. Finishing, complex supports, shipping, and design help are confirmed separately.</div><div className="progress-label"><span>PROJECT SCAN</span><b>{Math.min(step, 4)}/4</b></div><div className="progress-track"><span style={{ width: `${Math.min(step, 4) * 25}%` }}></span></div></aside>
         </Reveal>
-
-        <Reveal className="quote-timeline">
-          {TIMELINE_STEPS.map((step) => (
-            <div key={step.num} className="qt-step">
-              <span className="qt-num">{step.num}</span>
-              <div>
-                <h4>{step.title}</h4>
-                <p>{step.text}</p>
-              </div>
-            </div>
-          ))}
-        </Reveal>
+        <p className="agent-footnote">No file yet? That&apos;s fine. Start with the idea and share photos or a model link with the team on WhatsApp.</p>
       </div>
     </section>
   )

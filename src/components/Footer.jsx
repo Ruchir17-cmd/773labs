@@ -22,6 +22,7 @@ export default function Footer() {
                 <li><Link to="/">Home</Link></li>
                 <li><Link to="/shop">Shop</Link></li>
                 <li><Link to="/quote">Custom Quote</Link></li>
+                <li><Link to="/polyphemus">Polyphemus</Link></li>
               </ul>
             </div>
             <div>

@@ -25,10 +25,12 @@ export function buildQuoteMessage(fields) {
     '',
     `Name: ${fields.name || '-'}`,
     fields.projectType ? `Project type: ${fields.projectType}` : null,
+    fields.size ? `Size: ${fields.size}` : null,
     `Details: ${fields.details || '-'}`,
     `Material: ${fields.material || '-'}`,
     `Quantity: ${fields.quantity || '-'}`,
     fields.deadline ? `Needed by: ${fields.deadline}` : null,
+    fields.estimate ? `Working estimate: ${fields.estimate}` : null,
   ].filter(Boolean)
   return lines.join('\n')
 }

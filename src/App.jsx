@@ -4,6 +4,7 @@ import Footer from './components/Footer.jsx'
 import Home from './pages/Home.jsx'
 import Shop from './pages/Shop.jsx'
 import Quote from './pages/Quote.jsx'
+import Polyphemus from './pages/Polyphemus.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
 
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/quote" element={<Quote />} />
+          <Route path="/polyphemus" element={<Polyphemus />} />
         </Routes>
       </main>
       <Footer />

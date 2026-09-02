@@ -17,6 +17,7 @@ export default function Navbar() {
           <li><NavLink to="/" end onClick={() => setOpen(false)}>Home</NavLink></li>
           <li><NavLink to="/shop" onClick={() => setOpen(false)}>Shop</NavLink></li>
           <li><NavLink to="/quote" onClick={() => setOpen(false)}>Custom Quote</NavLink></li>
+          <li><NavLink to="/polyphemus" onClick={() => setOpen(false)}>Polyphemus</NavLink></li>
           <li className="nav-links-mobile-cta">
             <a
               className="btn btn-whatsapp"
