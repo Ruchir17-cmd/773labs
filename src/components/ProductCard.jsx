@@ -34,6 +34,12 @@ export default function ProductCard({ product }) {
           <span>{product.layerHeight} layers</span>
           <span>{product.printTime} print</span>
         </div>
+        {product.offer && (
+          <div className="product-offer" aria-label={`${product.offer.label}. ${product.offer.description}`}>
+            <span className="product-offer-label"><span className="product-offer-mark" aria-hidden="true">+</span>{product.offer.label}</span>
+            <span className="product-offer-description">{product.offer.description}</span>
+          </div>
+        )}
         <div className="product-footer">
           <span className="product-price">{product.price}</span>
           <a

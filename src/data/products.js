@@ -46,7 +46,7 @@ export const PRODUCTS = [
   { id: 'dr-03', name: 'RC Car Chassis Mount', category: 'Drone & RC Parts', material: 'PETG', layerHeight: '0.16mm', printTime: '3h', price: 'From ₹499', icon: 'bracket', image: '/RC Car Chassis Mount.jpg' },
   { id: 'dr-04', name: 'Camera Gimbal Bracket', category: 'Drone & RC Parts', material: 'PETG', layerHeight: '0.12mm', printTime: '3h', price: 'From ₹549', icon: 'bracket', image: '/Camera Gimbal Bracket.jpg' },
   { id: 'dr-05', name: 'Battery Strap Clip', category: 'Drone & RC Parts', material: 'TPU', layerHeight: '0.2mm', printTime: '1h', price: 'From ₹149', icon: 'drone' },
-  { id: 'dr-06', name: 'Landing Gear Skids', category: 'Drone & RC Parts', material: 'Nylon', layerHeight: '0.2mm', printTime: '2h', price: 'From ₹349', icon: 'drone' },
+  { id: 'dr-06', name: 'Landing Gear Skids', category: 'Drone & RC Parts', material: 'Nylon', layerHeight: '0.2mm', printTime: '2h', price: 'From ₹349', icon: 'drone', image: '/Landing Gear Skids.jpg' },
 
   // Home & Decor
   { id: 'hd-01', name: 'Sculptural Single-Wall Vase', category: 'Home & Decor', material: 'Silk PLA', layerHeight: '0.28mm', printTime: '5h', price: 'From ₹599', icon: 'vase', image: '/Sculptural Single-Wall Vase.jpg' },
@@ -88,7 +88,7 @@ export const PRODUCTS = [
   { id: 'ch-05', name: 'Gandalf', category: 'Characters', material: 'PLA', layerHeight: '0.12mm', printTime: '4h', price: 'From ₹599', icon: 'mini' },
 
   // Featured product
-  { id: 'sp-01', name: 'Black Spider-Man Headphone Holder', category: 'Home & Decor', material: 'PLA', layerHeight: '0.16mm', printTime: '10h', price: '₹3,000', icon: 'helmet', image: '/fr.jpeg', gallery: ['/fr.jpeg', '/fs.jpeg', '/new.jpeg'] },
+  { id: 'sp-01', name: 'Black Spider-Man Headphone Holder', category: 'Home & Decor', material: 'PLA', layerHeight: '0.16mm', printTime: '10h', price: '₹3,000', icon: 'helmet', image: '/spiderman head black new.jpg', gallery: ['/spiderman head black new.jpg', '/fr.jpeg', '/fs.jpeg'], offer: { label: 'OpenCode Go included', description: 'Premium AI coding models included with your purchase.', models: ['GPT-5.6 Luna', 'DeepSeek V4 Pro', 'Grok', 'Qwen', 'Kimi'] } },
 
   // Weapons (Movies & TV)
   { id: 'wp-01', name: 'Mjolnir — Thor\u2019s Hammer', category: 'Weapons', material: 'PLA', layerHeight: '0.16mm', printTime: '12h', price: 'From ₹1,799', icon: 'gear' },
@@ -98,14 +98,14 @@ export const PRODUCTS = [
   { id: 'wp-05', name: 'Wolverine Claws (Pair)', category: 'Weapons', material: 'ABS', layerHeight: '0.16mm', printTime: '6h', price: 'From ₹999', icon: 'grip' },
 
   // From Maker's World
-  { id: 'mw-01', name: 'Articulated Crystal Dragon', category: 'Miniatures & Collectibles', material: 'PLA', layerHeight: '0.2mm', printTime: '5h', price: 'From ₹699', icon: 'mini', image: "/MakerWorld - Articulated Crystal Dragon.jpg" },
-  { id: 'mw-02', name: 'Flexi Articulated Axolotl', category: 'Miniatures & Collectibles', material: 'PLA', layerHeight: '0.16mm', printTime: '3h', price: 'From ₹449', icon: 'mini', image: "/MakerWorld - Flexi Articulated Axolotl.jpg" },
-  { id: 'mw-03', name: 'Infinite Fidget Cube', category: 'Miniatures & Collectibles', material: 'PETG', layerHeight: '0.16mm', printTime: '2h', price: 'From ₹249', icon: 'grip', image: "/MakerWorld - Infinite Fidget Cube.jpg" },
-  { id: 'mw-04', name: 'Hexagon Wall Planter Set', category: 'Home & Decor', material: 'PLA', layerHeight: '0.2mm', printTime: '6h', price: 'From ₹599', icon: 'vase', image: "/MakerWorld - Hexagon Wall Planter Set.jpg" },
-  { id: 'mw-05', name: 'Moon Lamp Lithophane', category: 'Home & Decor', material: 'PLA', layerHeight: '0.12mm', printTime: '9h', price: 'From ₹1,099', icon: 'vase', image: "/MakerWorld - Moon Lamp Lithophane.jpg" },
-  { id: 'mw-06', name: 'Headphone Stand — Curve', category: 'Custom Enclosures & Mounts', material: 'PETG', layerHeight: '0.2mm', printTime: '5h', price: 'From ₹499', icon: 'bracket', image: "/MakerWorld - Headphone Stand — Curve.jpg" },
-  { id: 'mw-07', name: 'Foldable Phone Stand', category: 'Mechanical Parts & Brackets', material: 'PLA', layerHeight: '0.2mm', printTime: '1h', price: 'From ₹199', icon: 'bracket', image: "/MakerWorld - Foldable Phone Stand.jpg" },
-  { id: 'mw-08', name: 'Dragon Dice Tower', category: 'Miniatures & Collectibles', material: 'PLA', layerHeight: '0.16mm', printTime: '8h', price: 'From ₹899', icon: 'building', image: "/MakerWorld - Dragon Dice Tower.jpg" },
+  { id: 'mw-01', name: 'Articulated Crystal Dragon', category: 'Miniatures & Collectibles', material: 'PLA', layerHeight: '0.2mm', printTime: '5h', price: 'From ₹699', icon: 'mini', image: '/Articulated Crystal Dragon.jpg' },
+  { id: 'mw-02', name: 'Flexi Articulated Axolotl', category: 'Miniatures & Collectibles', material: 'PLA', layerHeight: '0.16mm', printTime: '3h', price: 'From ₹449', icon: 'mini', image: '/Flexi Articulated Axolotl.jpg' },
+  { id: 'mw-03', name: 'Infinite Fidget Cube', category: 'Miniatures & Collectibles', material: 'PETG', layerHeight: '0.16mm', printTime: '2h', price: 'From ₹249', icon: 'grip', image: '/Infinite Fidget Cube.jpg' },
+  { id: 'mw-04', name: 'Hexagon Wall Planter Set', category: 'Home & Decor', material: 'PLA', layerHeight: '0.2mm', printTime: '6h', price: 'From ₹599', icon: 'vase', image: '/Hexagon Wall Planter Set.jpg' },
+  { id: 'mw-05', name: 'Moon Lamp Lithophane', category: 'Home & Decor', material: 'PLA', layerHeight: '0.12mm', printTime: '9h', price: 'From ₹1,099', icon: 'vase', image: '/Moon Lamp Lithophane.jpg' },
+  { id: 'mw-06', name: 'Headphone Stand — Curve', category: 'Custom Enclosures & Mounts', material: 'PETG', layerHeight: '0.2mm', printTime: '5h', price: 'From ₹499', icon: 'bracket' },
+  { id: 'mw-07', name: 'Foldable Phone Stand', category: 'Mechanical Parts & Brackets', material: 'PLA', layerHeight: '0.2mm', printTime: '1h', price: 'From ₹199', icon: 'bracket', image: '/foldable phone mount.jpg' },
+  { id: 'mw-08', name: 'Dragon Dice Tower', category: 'Miniatures & Collectibles', material: 'PLA', layerHeight: '0.16mm', printTime: '8h', price: 'From ₹899', icon: 'building', image: '/Dragon Dice Tower.jpg' },
 ]
 
 // The two designs shown on the homepage — pick any two ids from PRODUCTS.

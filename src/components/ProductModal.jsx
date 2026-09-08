@@ -94,6 +94,16 @@ export default function ProductModal({ product, onClose }) {
               <dd className="accent">{product.price}</dd>
             </div>
           </dl>
+          {product.offer && (
+            <details className="offer-details">
+              <summary><span className="product-offer-mark" aria-hidden="true">+</span>What&apos;s included?</summary>
+              <div className="offer-details-body">
+                <p>{product.name}</p>
+                <p>OpenCode Go AI access</p>
+                <p>Premium coding models: {product.offer.models.join(' · ')}</p>
+              </div>
+            </details>
+          )}
           <p className="modal-note">
             Final price depends on size, infill, and quantity. Message 773 Labs to confirm the
             details before ordering.
