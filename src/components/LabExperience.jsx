@@ -100,6 +100,118 @@ const HEADERS = SLOTS
     count: PRODUCTS.filter((product) => product.category === slot.product.category).length,
   }))
 
+/* ----------------------------------------------------------------- photos -- */
+
+/* Source photographs are large (up to 2MP each, ~210MB of VRAM for the whole
+   catalogue), but a card is only ever a few hundred pixels on screen. Cover-
+   cropping everything to PHOTO_EDGE on load brings the entire catalogue to
+   roughly 20MB, which is cheap enough to simply keep resident. That lets every
+   card hold its real photo permanently — no windowing, no disposal races, and
+   a photo is already decoded by the time the visitor reaches that card.
+
+   Textures are shared per-URL, so each file is fetched and decoded exactly once
+   even though two cards reference it. */
+const PHOTO_EDGE = 320
+const PHOTO_W = 0.94
+const PHOTO_H = 0.94
+
+const photoCache = new Map()
+const photoPending = new Map()
+
+function buildPhoto(image) {
+  let sw = image.width
+  let sh = image.height
+  if (sw / sh > PHOTO_W / PHOTO_H) sw = sh * (PHOTO_W / PHOTO_H)
+  else sh = sw * (PHOTO_H / PHOTO_W)
+
+  const scale = Math.min(1, PHOTO_EDGE / Math.max(sw, sh))
+  const canvas = document.createElement('canvas')
+  canvas.width = Math.max(1, Math.round(sw * scale))
+  canvas.height = Math.max(1, Math.round(sh * scale))
+  canvas.getContext('2d').drawImage(
+    image,
+    (image.width - sw) / 2, (image.height - sh) / 2, sw, sh,
+    0, 0, canvas.width, canvas.height,
+  )
+
+  const map = new THREE.CanvasTexture(canvas)
+  map.colorSpace = THREE.SRGBColorSpace
+  map.anisotropy = 4
+  map.needsUpdate = true
+  return map
+}
+
+function loadProductPhoto(url) {
+  const cached = photoCache.get(url)
+  if (cached !== undefined) return Promise.resolve(cached)
+  const inflight = photoPending.get(url)
+  if (inflight) return inflight
+
+  const promise = new Promise((resolve) => {
+    const image = new Image()
+    image.onload = () => {
+      let map = null
+      try {
+        if (image.width && image.height) map = buildPhoto(image)
+      } catch {
+        map = null
+      }
+      photoCache.set(url, map)
+      photoPending.delete(url)
+      resolve(map)
+    }
+    image.onerror = () => {
+      photoCache.set(url, null)
+      photoPending.delete(url)
+      resolve(null)
+    }
+    image.src = encodeURI(url)
+  })
+
+  photoPending.set(url, promise)
+  return promise
+}
+
+/* Shows the product photograph, falling back to the procedural stand-in for the
+   30 designs that have no photo in the catalogue yet. */
+function CardShot({ product, material, hovered }) {
+  const [texture, setTexture] = useState(() => photoCache.get(product.image))
+
+  useEffect(() => {
+    if (!product.image) {
+      setTexture(null)
+      return undefined
+    }
+    const cached = photoCache.get(product.image)
+    if (cached !== undefined) {
+      setTexture(cached)
+      return undefined
+    }
+    let alive = true
+    loadProductPhoto(product.image).then((map) => {
+      if (alive) setTexture(map)
+    })
+    return () => {
+      alive = false
+    }
+  }, [product.image])
+
+  if (!texture) {
+    return (
+      <group position={[0, 1.0, 0.07]} scale={hovered ? 0.66 : 0.58}>
+        <Artifact icon={product.icon} material={material} />
+      </group>
+    )
+  }
+
+  return (
+    <mesh position={[0, 1.0, 0.055]}>
+      <planeGeometry args={[PHOTO_W, PHOTO_H]} />
+      <meshBasicMaterial map={texture} toneMapped={false} />
+    </mesh>
+  )
+}
+
 function smoothstep(from, to, value) {
   const t = THREE.MathUtils.clamp((value - from) / (to - from), 0, 1)
   return t * t * (3 - 2 * t)
@@ -118,6 +230,8 @@ function useSpotlight() {
   const meta = useRef(null)
   const price = useRef(null)
   const link = useRef(null)
+  const shot = useRef(null)
+  const shotWrap = useRef(null)
   const hover = useRef({ active: false, target: new THREE.Vector3() })
   const navigate = useNavigate()
 
@@ -137,12 +251,26 @@ function useSpotlight() {
     }
     if (price.current) price.current.textContent = product.price
     if (link.current) link.current.setAttribute('href', `/product/${product.id}`)
+
+    /* Only re-point <img> when it actually changes, otherwise every hover
+       across the same card restarts the download. */
+    if (shot.current) {
+      if (product.image) {
+        const src = encodeURI(product.image)
+        if (shot.current.getAttribute('src') !== src) shot.current.src = src
+        shot.current.alt = product.name
+        element.dataset.shot = 'on'
+      } else {
+        element.dataset.shot = 'off'
+      }
+    }
+
     element.style.setProperty('--accent', SHELF_COLORS[product.category] || '#8be1d5')
     element.dataset.on = 'on'
 
     const source = event.nativeEvent || event
-    const width = element.offsetWidth || 280
-    const height = element.offsetHeight || 190
+    const width = element.offsetWidth || 300
+    const height = element.offsetHeight || 250
     const left = THREE.MathUtils.clamp((source.clientX || 0) + 38, 16, window.innerWidth - width - 16)
     const top = THREE.MathUtils.clamp((source.clientY || 0) - height * 0.5, 16, window.innerHeight - height - 16)
     element.style.transform = `translate3d(${left}px, ${top}px, 0)`
@@ -153,7 +281,7 @@ function useSpotlight() {
     hover.current.active = false
   }, [])
 
-  return { hover, enter, leave, index, name, meta, price, link, navigate }
+  return { hover, enter, leave, index, name, meta, price, link, shot, shotWrap, navigate }
 }
 
 /* ----------------------------------------------------------------- scene -- */
@@ -1246,10 +1374,10 @@ function FloorCard({ slot, spotlight }) {
 
   useFrame((_, delta) => {
     lift.current = THREE.MathUtils.damp(lift.current, hovered ? 1 : 0, 9, delta)
-    yaw.current = THREE.MathUtils.damp(yaw.current, hovered ? 0.62 : 1, 9, delta)
+    yaw.current = THREE.MathUtils.damp(yaw.current, hovered ? 0.85 : 1, 9, delta)
     if (!root.current) return
-    root.current.position.y = TABLE_TOP + lift.current * 0.18
-    root.current.scale.setScalar(1 + lift.current * 0.07)
+    root.current.position.y = TABLE_TOP + lift.current * 0.26
+    root.current.scale.setScalar(1 + lift.current * 0.14)
     root.current.rotation.set(-0.16 - lift.current * 0.04, -side * 0.22 * yaw.current, 0)
   })
 
@@ -1296,34 +1424,36 @@ function FloorCard({ slot, spotlight }) {
       </mesh>
 
       {/* Header band: catalogue number, category tick. */}
-      <mesh position={[0, CARD_H - 0.17, 0.032]}>
-        <boxGeometry args={[CARD_W - 0.09, 0.2, 0.06]} />
+      <mesh position={[0, CARD_H - 0.13, 0.032]}>
+        <boxGeometry args={[CARD_W - 0.09, 0.18, 0.06]} />
         <meshStandardMaterial color={accent} roughness={0.42} metalness={0.1} emissive={accent} emissiveIntensity={hovered ? 0.6 : 0.14} />
       </mesh>
-      <Text position={[0, CARD_H - 0.17, 0.07]} fontSize={0.085} color="#fdfaf3" anchorX="center" anchorY="middle" letterSpacing={0.14}>
+      <Text position={[0, CARD_H - 0.13, 0.07]} fontSize={0.082} color="#fdfaf3" anchorX="center" anchorY="middle" letterSpacing={0.14}>
         {String(order).padStart(2, '0')}
       </Text>
 
-      {/* Sample window. */}
-      <mesh position={[0, 0.82, 0.03]}>
-        <boxGeometry args={[CARD_W - 0.24, 0.82, 0.058]} />
+      {/* Sample window — the photograph sits proud of the card face. */}
+      <mesh position={[0, 1.0, 0.03]}>
+        <boxGeometry args={[1.12, 1.0, 0.058]} />
+        <meshStandardMaterial color="#1b2b2f" roughness={0.7} />
+      </mesh>
+      <mesh position={[0, 1.0, 0.045]}>
+        <planeGeometry args={[1.04, 0.92]} />
         <meshStandardMaterial color="#e7e9de" roughness={0.75} />
       </mesh>
-      <mesh position={[0, 1.19, 0.034]}>
-        <boxGeometry args={[CARD_W - 0.24, 0.03, 0.06]} />
-        <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.5} />
+      <mesh position={[0, 1.53, 0.034]}>
+        <boxGeometry args={[1.12, 0.03, 0.06]} />
+        <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={hovered ? 1.1 : 0.5} />
       </mesh>
-      <group position={[0, 0.86, 0.07]} scale={hovered ? 0.66 : 0.6}>
-        <Artifact icon={product.icon} material={material} />
-      </group>
+      <CardShot product={product} material={material} hovered={hovered} />
 
-      <mesh position={[0, 0.4, 0.032]}>
+      <mesh position={[0, 0.44, 0.032]}>
         <boxGeometry args={[CARD_W - 0.28, 0.014, 0.06]} />
         <meshStandardMaterial color="#9fb6b1" roughness={0.6} />
       </mesh>
       <Text
-        position={[0, 0.24, 0.05]}
-        fontSize={0.088}
+        position={[0, 0.3, 0.05]}
+        fontSize={0.094}
         maxWidth={CARD_W - 0.22}
         lineHeight={1.14}
         textAlign="center"
@@ -1333,7 +1463,7 @@ function FloorCard({ slot, spotlight }) {
       >
         {product.name}
       </Text>
-      <Text position={[0, 0.06, 0.05]} fontSize={0.048} maxWidth={CARD_W - 0.22} textAlign="center" anchorX="center" anchorY="middle" color="#5f817d" letterSpacing={0.1}>
+      <Text position={[0, 0.11, 0.05]} fontSize={0.05} maxWidth={CARD_W - 0.22} textAlign="center" anchorX="center" anchorY="middle" color="#5f817d" letterSpacing={0.1}>
         {`${product.material.toUpperCase()} · ${product.layerHeight}`}
       </Text>
 
@@ -1643,7 +1773,15 @@ export default function LabExperience() {
         <div className="lab-hint" aria-hidden="true">Hover a card · click to open its spec</div>
 
         {/* Hover read-out. Moved and filled imperatively so the scene never re-renders. */}
-        <div className="lab-spotlight" ref={spotlight.root} aria-hidden="true" data-on="off">
+        <div className="lab-spotlight" ref={spotlight.root} aria-hidden="true" data-on="off" data-shot="off">
+          <figure className="lab-shot" ref={spotlight.shotWrap}>
+            <img ref={spotlight.shot} alt="" decoding="async"
+              onError={(event) => {
+                event.currentTarget.style.visibility = 'hidden'
+                const card = event.currentTarget.closest('.lab-spotlight')
+                if (card) card.dataset.shot = 'off'
+              }} />
+          </figure>
           <div className="lab-spotlight-top">
             <span className="lab-spotlight-index" ref={spotlight.index}>01</span>
             <span className="lab-spotlight-open">VIEW SPEC →</span>
