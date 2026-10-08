@@ -346,8 +346,12 @@ function LabRoom({ progress, spotlight }) {
       <DustParticles />
       <HangingPlants />
       <WallArt />
-      <ActivePrinter position={[-2.6, 1.1, -47.6]} scale={1.05} />
-      <ActivePrinter position={[0.3, 1.1, -47.6]} scale={1.05} />
+      <ActivePrinter position={[-2.6, 1.1, -47.6]} scale={1.05} variant={0} />
+      <ActivePrinter position={[0.3, 1.1, -47.6]} scale={1.05} variant={1} />
+      <ActivePrinter position={[-4.2, 1.1, -38]} scale={0.9} variant={2} />
+      <ActivePrinter position={[4.2, 1.1, -30]} scale={0.95} variant={1} />
+      <ActivePrinter position={[-4.2, 1.1, -22]} scale={0.85} variant={0} />
+      <ActivePrinter position={[4.2, 1.1, -14]} scale={0.9} variant={2} />
       <Showcase x={-1.15} z={-47.6} width={6.6} height={2.5} depth={1.5} base={1.1} />
 
       {/* The catalog, arranged along both walls of the hall. */}
@@ -631,24 +635,42 @@ function WallArt() {
   )
 }
 
-function ActivePrinter({ position = [0, 0, 0], rotation = [0, 0, 0], scale = 1 }) {
+function ActivePrinter({ position = [0, 0, 0], rotation = [0, 0, 0], scale = 1, variant = 0 }) {
   const printHead = useRef()
   const gantry = useRef()
   const printedObject = useRef()
   const led = useRef()
   const spool = useRef()
+  const printProgress = useRef(0)
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const t = state.clock.elapsedTime
     if (printHead.current) printHead.current.position.x = Math.sin(t * 2.2) * 0.32
     if (gantry.current) gantry.current.position.y = 1.35 + ((t * 0.018) % 0.7)
     if (printedObject.current) {
-      const p = (t * 0.04) % 1
+      printProgress.current = (printProgress.current + delta * 0.04) % 1
+      const p = printProgress.current
       printedObject.current.scale.y = 0.08 + p * 0.92
+      printedObject.current.rotation.y = p * Math.PI * 2
     }
     if (led.current) led.current.material.emissiveIntensity = 0.5 + Math.sin(t * 5) * 0.5
     if (spool.current) spool.current.rotation.x = t * 0.4
   })
+
+  const printedObjectNode = useMemo(() => {
+    if (variant % 3 === 0) {
+      const points = [
+        new THREE.Vector2(0.06, 0), new THREE.Vector2(0.22, 0.06), new THREE.Vector2(0.31, 0.3),
+        new THREE.Vector2(0.25, 0.55), new THREE.Vector2(0.12, 0.7), new THREE.Vector2(0.13, 0.86),
+        new THREE.Vector2(0.2, 0.88),
+      ]
+      return <latheGeometry args={[points, 12]} />
+    }
+    if (variant % 3 === 1) {
+      return <torusKnotGeometry args={[0.18, 0.06, 32, 8]} />
+    }
+    return <icosahedronGeometry args={[0.28, 0]} />
+  }, [variant])
 
   return (
     <group position={position} rotation={rotation} scale={scale}>
@@ -689,7 +711,7 @@ function ActivePrinter({ position = [0, 0, 0], rotation = [0, 0, 0], scale = 1 }
         </group>
         <group ref={printedObject} position={[0, 0.34, 0]}>
           <mesh>
-            <cylinderGeometry args={[0.15, 0.18, 0.4, 8]} />
+            {printedObjectNode}
             <meshStandardMaterial color="#d0a451" roughness={0.5} />
           </mesh>
         </group>
