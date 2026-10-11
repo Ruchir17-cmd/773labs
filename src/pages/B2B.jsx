@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { waLink, trackSend, buildQuoteMessage } from '../data/whatsapp.js'
+import { waLink, buildQuoteMessage } from '../data/whatsapp.js'
 
 const INDUSTRIES = [
   'Education & Research', 'Product Design & Engineering', 'Architecture & Construction',
@@ -31,7 +31,6 @@ export default function B2B() {
     e.preventDefault()
     const message = buildQuoteMessage({ ...form, projectType: form.industry, quantity: form.volume })
     window.open(waLink(message), '_blank', 'noopener,noreferrer')
-    trackSend('b2b-enquiry', message)()
   }
 
   return (

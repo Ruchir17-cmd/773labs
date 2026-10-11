@@ -134,6 +134,15 @@ a{color:inherit;text-decoration:none;}
   padding:6px 12px;border:1px solid rgba(175,224,215,.24);border-radius:999px;
   color:#a4e7dd;font:500 .6rem var(--font-mono);letter-spacing:.13em;text-transform:uppercase;
 }
+.lab-arrival-cta{
+  pointer-events:auto;
+  display:block;margin-top:16px;padding:13px 22px;
+  border-radius:999px;text-align:center;
+  background:#8fe0d5;color:#12262a;
+  font:600 .66rem var(--font-mono);letter-spacing:.14em;text-transform:uppercase;
+  transition:transform .18s ease,box-shadow .18s ease;
+}
+.lab-arrival-cta:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(80,200,186,.3);}
 .lab-corner-mark{position:absolute;z-index:2;top:28px;right:clamp(24px,4vw,62px);color:rgba(232,246,242,.8);font:600 .67rem var(--font-mono);letter-spacing:.16em;pointer-events:none;}
 .lab-corner-mark span{color:#79d5ca;}
 .lab-hint{
@@ -215,6 +224,149 @@ a{color:inherit;text-decoration:none;}
 .lab-index{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;}
 .lab-index ul{list-style:none;}
 .lab-index a{color:inherit;}
+
+/* ------------------------------------------------------- the design hall -- */
+/* The visible catalogue that follows the 3D walk. Every design is rendered
+   before the visitor touches anything, so the full range is legible at once. */
+
+.design-hall{
+  position:relative;
+  scroll-margin-top:72px;
+  padding:clamp(56px,9vh,110px) clamp(16px,4vw,56px) clamp(64px,10vh,120px);
+  background:
+    radial-gradient(120% 60% at 50% 0%,rgba(103,208,196,.09) 0%,transparent 60%),
+    linear-gradient(180deg,#121d21 0%,#16262b 45%,#18272d 100%);
+  border-top:1px solid rgba(175,224,215,.14);
+  color:#fff6e9;
+}
+.hall-inner{max-width:1480px;margin:0 auto;}
+
+.hall-head{max-width:62ch;margin-bottom:clamp(26px,4vh,42px);}
+.hall-head h2{
+  margin:18px 0 14px;
+  font:600 clamp(2rem,4.4vw,3.4rem)/1 var(--font-display);
+  letter-spacing:-.06em;
+}
+.hall-head h2 em{color:#8fe0d5;font-style:normal;text-shadow:0 0 40px rgba(143,224,213,.3);}
+.hall-lede{color:rgba(235,247,243,.72);font-size:1rem;line-height:1.7;}
+.hall-lede strong{color:#fff6e9;font-weight:600;}
+
+.hall-controls{
+  position:sticky;top:60px;z-index:20;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  padding:12px 0;
+  margin-bottom:14px;
+  background:linear-gradient(180deg,#141f24 60%,rgba(20,31,36,.86));
+  border-bottom:1px solid rgba(175,224,215,.14);
+  backdrop-filter:blur(14px);
+}
+.hall-search{
+  flex:1;min-width:220px;max-width:420px;
+  display:flex;align-items:center;gap:10px;
+  padding:11px 15px;
+  border:1px solid rgba(175,224,215,.18);border-radius:12px;
+  background:rgba(12,22,26,.6);
+}
+.hall-search svg{width:17px;height:17px;color:#8fe0d5;flex-shrink:0;}
+.hall-search input{
+  flex:1;min-width:0;border:none;background:transparent;outline:none;
+  color:#fff6e9;font:500 .88rem var(--font-body);
+}
+.hall-search input::placeholder{color:rgba(235,247,243,.35);}
+.hall-count{
+  color:#8fe0d5;font:600 .7rem var(--font-mono);
+  letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;
+}
+
+.hall-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px;}
+
+.hall-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(172px,1fr));
+  gap:14px;
+}
+
+.hall-card{
+  display:flex;flex-direction:column;
+  border:1px solid rgba(175,224,215,.14);
+  border-radius:14px;
+  overflow:hidden;
+  background:rgba(19,33,38,.72);
+  transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease;
+}
+.hall-card:hover,.hall-card:focus-visible{
+  border-color:rgba(143,224,213,.55);
+  transform:translateY(-4px);
+  box-shadow:0 18px 38px rgba(0,0,0,.38);
+  outline:none;
+}
+.hall-card-media{
+  position:relative;display:block;aspect-ratio:4/5;overflow:hidden;
+  background:linear-gradient(160deg,#22383d,#16242a);
+}
+.hall-card-media img{
+  display:block;width:100%;height:100%;object-fit:cover;
+  transition:transform .35s ease;
+}
+.hall-card:hover .hall-card-media img{transform:scale(1.06);}
+.hall-card-fallback{
+  display:grid;place-items:center;width:100%;height:100%;
+  color:#8fe0d5;font:600 2.6rem var(--font-display);
+}
+.hall-card-cat{
+  position:absolute;left:8px;bottom:8px;right:8px;
+  padding:5px 9px;border-radius:999px;
+  background:rgba(10,20,24,.82);backdrop-filter:blur(8px);
+  color:#a4e7dd;font:600 .53rem var(--font-mono);
+  letter-spacing:.1em;text-transform:uppercase;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.hall-card-no{
+  position:absolute;top:8px;left:8px;
+  min-width:24px;padding:3px 6px;border-radius:7px;
+  background:rgba(143,224,213,.92);color:#0f1e24;
+  font:700 .58rem var(--font-mono);letter-spacing:.06em;text-align:center;
+}
+.hall-card-body{display:flex;flex-direction:column;gap:8px;padding:12px 13px 14px;flex:1;}
+.hall-card-body strong{display:block;font:600 .86rem/1.3 var(--font-display);letter-spacing:-.01em;}
+.hall-card-meta{
+  color:rgba(235,247,243,.5);
+  font:500 .58rem/1.5 var(--font-mono);letter-spacing:.06em;text-transform:uppercase;
+}
+.hall-card-foot{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-top:auto;padding-top:10px;
+  border-top:1px solid rgba(175,224,215,.1);
+}
+.hall-card-price{color:#8fe0d5;font:600 .82rem var(--font-display);white-space:nowrap;}
+.hall-card-cta{
+  color:rgba(235,247,243,.45);
+  font:500 .6rem var(--font-mono);letter-spacing:.1em;text-transform:uppercase;
+  transition:color .18s ease;
+}
+.hall-card:hover .hall-card-cta{color:#8fe0d5;}
+
+.hall-empty{padding:60px 0;text-align:center;color:rgba(235,247,243,.6);}
+
+.hall-foot{
+  display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;
+  margin-top:clamp(36px,5vh,56px);padding-top:28px;
+  border-top:1px solid rgba(175,224,215,.12);
+  color:rgba(235,247,243,.6);font-size:.88rem;
+}
+.hall-foot-cta{padding:13px 26px;font-size:.68rem;}
+.hall-foot-link{color:#8fe0d5;border-bottom:1px solid rgba(143,224,213,.4);}
+.hall-foot-link:hover{color:#fff6e9;}
+
+@media(max-width:920px){
+  .hall-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:11px;}
+  .hall-controls{position:static;}
+}
+@media(max-width:680px){
+  .hall-grid{grid-template-columns:repeat(auto-fill,minmax(132px,1fr));}
+  .hall-card-body strong{font-size:.8rem;}
+  .hall-foot{flex-direction:column;gap:14px;}
+}
 
 /* --------------------------------------------------------- product page -- */
 

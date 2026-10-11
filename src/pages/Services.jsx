@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { waLink, trackSend, buildQuoteMessage } from '../data/whatsapp.js'
+import { waLink, buildQuoteMessage } from '../data/whatsapp.js'
 
 const SERVICES = [
   {
@@ -70,7 +70,6 @@ export default function Services() {
     e.preventDefault()
     const message = buildQuoteMessage(form)
     window.open(waLink(message), '_blank', 'noopener,noreferrer')
-    trackSend('service-quote', message)()
   }
 
   return (

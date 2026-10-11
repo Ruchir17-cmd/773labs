@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { PRODUCTS } from '../data/products.js'
-import { waLink, trackSend, buildOrderMessage } from '../data/whatsapp.js'
+import { waLink, buildOrderMessage } from '../data/whatsapp.js'
 
 export default function Product() {
   const { id } = useParams()
@@ -73,7 +73,6 @@ export default function Product() {
           <a
             className="btn btn-whatsapp"
             href={waLink(buildOrderMessage(product))}
-            onClick={trackSend('order', buildOrderMessage(product))}
             target="_blank"
             rel="noopener noreferrer"
           >

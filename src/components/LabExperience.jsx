@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Text } from '@react-three/drei'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import * as THREE from 'three'
 import { PRODUCTS } from '../data/products.js'
 
 /* ------------------------------------------------------------------ plan -- */
 
-const HALL_HALF = 6.0
+const HALL_HALF = 6.5
 const HALL_HEIGHT = 6.6
 const HALL_NEAR = 7.0
 const HALL_FAR = -52
@@ -20,27 +20,29 @@ const START_Z = 11.6
 const END_Z = -44
 const LOOK_Y = 2.98
 
-const LEDGE_Y = 1.16
-const DISPLAY_START_Z = 2.6
-const DISPLAY_END_Z = -42
-const GROUP_GAP = 2.8
-const WALL_SCALE = 1.42
+/* The hall is a gallery. Cards deliberately do NOT sit flat against the walls:
+   the visitor walks down the centre line with a ~78° horizontal field of view, so
+   a wall-mounted frame is at a grazing angle at best and falls outside the
+   frustum entirely in the near field — which is why a flat hang reads as a
+   bare corridor. Every card is instead yawed back up the corridor on an angled
+   rail, which puts its face nearly square to the visitor as they approach. */
+const WALL_INSET = 0.02
+const CARD_W = 1.15
+const CARD_H = 1.72
+const CARD_Y = 2.3
+const CARD_TILT = -0.05
+const CARD_YAW = (48 * Math.PI) / 180
+const CARD_STANDOFF = 0.78
+const GALLERY_START_Z = 2.2
+const GALLERY_END_Z = -42
+const GALLERY_SPAN = GALLERY_START_Z - GALLERY_END_Z
+const PAN_AMPLITUDE = 2.6
 
-const CARD_ROW_X = 3.05
-const CARD_W = 1.24
-const CARD_H = 1.78
-const CARD_START_Z = 4.4
-const TABLE_TOP = 1.74
-const TABLE_FROM_Z = 6.4
-const TABLE_TO_Z = -45.5
-const TABLE_W = 1.7
-
-/* Cards alternate between the two tables, so spacing is derived from the run
-   itself. A fixed step would silently push the last card off the end of the
+/* Frames alternate between the two walls, so spacing is derived from the run
+   itself. A fixed step would silently push the last frame off the end of the
    hall as soon as the catalog grows. */
 const ROW_SLOTS = Math.ceil(PRODUCTS.length / 2)
-const CARD_MARGIN = 0.9
-const CARD_STEP = (CARD_START_Z - (TABLE_TO_Z + CARD_MARGIN)) / Math.max(1, ROW_SLOTS - 1)
+const FRAME_STEP = (GALLERY_START_Z - GALLERY_END_Z) / Math.max(1, ROW_SLOTS - 1)
 
 const BAY_Z = [3.4, -6.4, -16.2, -26, -35.8, -44.6]
 const BEAM_Z = Array.from({ length: 18 }, (_, i) => 5.4 - i * 3.35)
@@ -60,10 +62,6 @@ const CATEGORY_ORDER = [
   'Weapons',
 ]
 
-const groupByCategory = (names) => names.map((name) => PRODUCTS.filter((product) => product.category === name))
-const LEFT_GROUPS = groupByCategory(CATEGORY_ORDER.slice(0, 4))
-const RIGHT_GROUPS = groupByCategory(CATEGORY_ORDER.slice(4))
-
 const SHELF_COLORS = {
   'Mechanical Parts & Brackets': '#4f9188',
   'Miniatures & Collectibles': '#d0a451',
@@ -77,28 +75,36 @@ const SHELF_COLORS = {
   Weapons: '#7f89b1',
 }
 
-const MATERIALS = Object.fromEntries(
-  Object.entries(SHELF_COLORS).map(([name, color]) => [
-    name,
-    new THREE.MeshStandardMaterial({ color, roughness: 0.4, metalness: 0.12 }),
-  ]),
-)
+/* ------------------------------------------------------------- gallery -- */
 
-/* Every product gets a slot on one of the two display tables. */
-const SLOTS = PRODUCTS.map((product, index) => ({
+/* Every product gets a frame on one of the two gallery walls. */
+const GALLERY_SLOTS = PRODUCTS.map((product, index) => ({
   product,
   order: index + 1,
   side: index % 2 === 0 ? -1 : 1,
-  z: CARD_START_Z - Math.floor(index / 2) * CARD_STEP,
+  z: GALLERY_START_Z - Math.floor(index / 2) * FRAME_STEP,
 }))
 
-/* …and every category gets a floating header over the table where it starts. */
-const HEADERS = SLOTS
-  .filter((slot, index) => index === 0 || SLOTS[index - 1].product.category !== slot.product.category)
-  .map((slot) => ({
-    ...slot,
-    count: PRODUCTS.filter((product) => product.category === slot.product.category).length,
-  }))
+/* Each collection gets a wall plaque where its run begins. The catalogue is
+   not grouped — collections re-enter half way down — so the runs are read off
+   each wall's own sequence rather than the catalogue order. Single stragglers
+   carry their label on the frame instead of on the wall. */
+const collectionRuns = (slots) => {
+  const runs = []
+  slots.forEach((slot, index) => {
+    const previous = slots[index - 1]
+    if (previous && previous.product.category === slot.product.category) return
+    let end = index
+    while (end + 1 < slots.length && slots[end + 1].product.category === slot.product.category) end += 1
+    if (end - index < 1) return
+    runs.push({
+      category: slot.product.category,
+      count: PRODUCTS.filter((product) => product.category === slot.product.category).length,
+      midLocal: (slots[index].z + slots[end].z) / 2,
+    })
+  })
+  return runs
+}
 
 /* ----------------------------------------------------------------- photos -- */
 
@@ -112,8 +118,8 @@ const HEADERS = SLOTS
    Textures are shared per-URL, so each file is fetched and decoded exactly once
    even though two cards reference it. */
 const PHOTO_EDGE = 320
-const PHOTO_W = 0.94
-const PHOTO_H = 0.94
+const PHOTO_W = 0.86
+const PHOTO_H = 1.02
 
 const photoCache = new Map()
 const photoPending = new Map()
@@ -172,44 +178,32 @@ function loadProductPhoto(url) {
   return promise
 }
 
-/* Shows the product photograph, falling back to the procedural stand-in for the
-   30 designs that have no photo in the catalogue yet. */
-function CardShot({ product, material, hovered }) {
-  const [texture, setTexture] = useState(() => photoCache.get(product.image))
+/* Every frame hangs a real photograph of the print. Shared per-URL cache, so
+   each file is fetched and decoded exactly once even though several frames
+   reference it. */
+function useProductPhoto(url) {
+  const [texture, setTexture] = useState(() => (url ? photoCache.get(url) : null))
 
   useEffect(() => {
-    if (!product.image) {
+    if (!url) {
       setTexture(null)
       return undefined
     }
-    const cached = photoCache.get(product.image)
+    const cached = photoCache.get(url)
     if (cached !== undefined) {
       setTexture(cached)
       return undefined
     }
     let alive = true
-    loadProductPhoto(product.image).then((map) => {
+    loadProductPhoto(url).then((map) => {
       if (alive) setTexture(map)
     })
     return () => {
       alive = false
     }
-  }, [product.image])
+  }, [url])
 
-  if (!texture) {
-    return (
-      <group position={[0, 1.0, 0.07]} scale={hovered ? 0.66 : 0.58}>
-        <Artifact icon={product.icon} material={material} />
-      </group>
-    )
-  }
-
-  return (
-    <mesh position={[0, 1.0, 0.055]}>
-      <planeGeometry args={[PHOTO_W, PHOTO_H]} />
-      <meshBasicMaterial map={texture} toneMapped={false} />
-    </mesh>
-  )
+  return texture
 }
 
 function smoothstep(from, to, value) {
@@ -281,7 +275,7 @@ function useSpotlight() {
     hover.current.active = false
   }, [])
 
-  return { hover, enter, leave, index, name, meta, price, link, shot, shotWrap, navigate }
+  return { root, hover, enter, leave, index, name, meta, price, link, shot, shotWrap, navigate }
 }
 
 /* ----------------------------------------------------------------- scene -- */
@@ -308,7 +302,12 @@ function LabRoom({ progress, spotlight }) {
 
     cameraGoal.set(glide * 0.18, LOOK_Y - 0.26 + enter * 0.26, THREE.MathUtils.lerp(START_Z, END_Z, travel))
     camera.position.lerp(cameraGoal, 1 - Math.exp(-delta * 2.4))
-    lookGoal.set(0, LOOK_Y - 0.3 + enter * 0.2, THREE.MathUtils.lerp(DOOR_Z, HALL_FAR, enter))
+
+    /* The camera sweeps between the two walls like a visitor's gaze —
+       fading in after the doors open and out before the desk. */
+    const panFade = smoothstep(0.15, 0.35, amount) * (1 - smoothstep(0.85, 0.98, amount))
+    const pan = Math.sin(amount * Math.PI * 4) * PAN_AMPLITUDE * panFade
+    lookGoal.set(pan, LOOK_Y - 0.3 + enter * 0.2, THREE.MathUtils.lerp(DOOR_Z, HALL_FAR, enter))
     camera.lookAt(lookGoal)
 
     if (light.current) light.current.intensity = 1.1 + enter * 1.6
@@ -328,18 +327,18 @@ function LabRoom({ progress, spotlight }) {
   return (
     <>
       <color attach="background" args={['#0f1e24']} />
-      <fog attach="fog" args={['#0f1e24', 18, 80]} />
+      {/* Pushed well down the hall so the receding rows of cards stay readable
+          instead of dissolving into haze a few metres in. */}
+      <fog attach="fog" args={['#0f1e24', 26, 96]} />
       <ambientLight intensity={0.85} color="#e8d5c0" />
       <directionalLight position={[-4, 8, 6]} intensity={1.4} color="#f5e8d0" />
       <pointLight ref={light} position={[0, 5.4, -1.5]} intensity={1.2} distance={22} color="#d4c4a8" />
-      <pointLight ref={follow} position={[0, TABLE_TOP + 0.8, 0]} intensity={0} distance={5} color="#ffe8c0" />
-      <pointLight position={[-3, 3, -10]} intensity={10} distance={14} color="#e8a060" />
-      <pointLight position={[3, 3, -20]} intensity={10} distance={14} color="#e8a060" />
-      <pointLight position={[-3, 3, -30]} intensity={10} distance={14} color="#e8a060" />
-      <pointLight position={[3, 3, -40]} intensity={10} distance={14} color="#e8a060" />
-      <pointLight position={[0, 4, -44]} intensity={14} distance={16} color="#ffb060" />
-      <pointLight position={[-2, 2.5, -42]} intensity={8} distance={10} color="#ffc080" />
-      <pointLight position={[2, 2.5, -44]} intensity={8} distance={10} color="#ffc080" />
+      <pointLight ref={follow} position={[0, CARD_Y + 0.8, 0]} intensity={0} distance={5} color="#ffe8c0" />
+      {/* Two warm pools carry the deep hall on their own. Every additional
+          point light is a per-fragment cost on every lit surface in the scene,
+          so the depth of the run is sold with emissive surfaces instead. */}
+      <pointLight position={[-3, 3.4, -12]} intensity={16} distance={20} color="#e8a060" />
+      <pointLight position={[3, 3.4, -32]} intensity={22} distance={24} color="#e8a060" />
 
       <Hallway />
       <FestoonLights />
@@ -354,13 +353,15 @@ function LabRoom({ progress, spotlight }) {
       <ActivePrinter position={[4.2, 1.1, -14]} scale={0.9} variant={2} />
       <Showcase x={-1.15} z={-47.6} width={6.6} height={2.5} depth={1.5} base={1.1} />
 
-      {/* The catalog, arranged along both walls of the hall. */}
-      <WallDisplay side="left" groups={LEFT_GROUPS} scale={WALL_SCALE} spotlight={spotlight} />
-      <WallDisplay side="right" groups={RIGHT_GROUPS} scale={WALL_SCALE - 0.12} spotlight={spotlight} />
+      {/* The catalogue, hung as framed artwork along both walls of the hall. */}
+      <GalleryWall side="left" spotlight={spotlight} />
+      <GalleryWall side="right" spotlight={spotlight} />
 
-      {/* Every design also stands on the tables as an upright, clickable card. */}
-      <DisplayTables />
-      <FloorCards spotlight={spotlight} />
+      {/* Benches and a centrepiece give the hall a gallery rhythm. */}
+      <GalleryBench position={[0, 0, -8]} />
+      <GalleryBench position={[0, 0, -24]} />
+      <GalleryBench position={[0, 0, -40]} />
+      <CentralSculpture position={[0, 0, -16]} />
 
       <Printer side="right" z={-43.5} />
       <Workbench side="left" z={-45} />
@@ -394,6 +395,18 @@ function Hallway() {
         <planeGeometry args={[4.2, HALL_LENGTH - 2]} />
         <meshBasicMaterial color="#f0d8a8" transparent opacity={0.05} depthWrite={false} />
       </mesh>
+
+      {/* Gallery runner with a brass border leads the visitor through the hang. */}
+      <mesh position={[0, 0.008, HALL_MID]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[3.2, HALL_LENGTH - 4]} />
+        <meshStandardMaterial color="#223634" roughness={0.95} />
+      </mesh>
+      {[-1.7, 1.7].map((x) => (
+        <mesh key={x} position={[x, 0.012, HALL_MID]}>
+          <boxGeometry args={[0.08, 0.015, HALL_LENGTH - 4]} />
+          <meshStandardMaterial color="#c89050" emissive="#a07030" emissiveIntensity={0.4} />
+        </mesh>
+      ))}
 
       {/* Ceiling: two solid decks either side of a lit skylight slot. */}
       {[-1, 1].map((side) => (
@@ -472,8 +485,8 @@ function Hallway() {
               <meshStandardMaterial color="#fff8e8" emissive="#e0c890" emissiveIntensity={1.85} />
             </mesh>
           ))}
-          {i % 4 === 0 && (
-            <pointLight position={[0, HALL_HEIGHT - 0.9, z]} intensity={16} distance={11} color="#e8d0a0" />
+          {i % 6 === 0 && (
+            <pointLight position={[0, HALL_HEIGHT - 1.1, z]} intensity={26} distance={13} color="#e8d0a0" />
           )}
         </group>
       ))}
@@ -493,7 +506,7 @@ function Hallway() {
             <circleGeometry args={[0.32, 14]} />
             <meshStandardMaterial color="#fff8e8" emissive="#e8d0a0" emissiveIntensity={1.5} side={THREE.DoubleSide} />
           </mesh>
-          {i % 5 === 1 && <pointLight position={[0, 4.3, 0]} intensity={11} distance={7.5} color="#e8c890" />}
+          {i % 5 === 1 && <pointLight position={[0, 4.3, 0]} intensity={18} distance={10} color="#e8c890" />}
         </group>
       )))}
 
@@ -525,12 +538,12 @@ function Hallway() {
         <boxGeometry args={[6.4, 0.035, 1.5]} />
         <meshStandardMaterial color="#c89050" emissive="#c89050" emissiveIntensity={0.45} />
       </mesh>
-      <WallSign side="left" z={4.1} y={3.5} title="LAB 01" sub="PRINT STUDIO" width={3.1} height={1.25} titleSize={0.38} />
+      <WallSign side="left" z={4.1} y={4.9} title="LAB 01" sub="PRINT STUDIO" width={3.1} height={1.25} titleSize={0.38} />
       <WallSign
         side="right"
         z={4.2}
-        y={3.5}
-        title="OPEN FLOOR"
+        y={4.9}
+        title="OPEN GALLERY"
         sub={`${PRODUCTS.length} DESIGNS ON DISPLAY`}
         width={2.4}
         height={1.05}
@@ -609,7 +622,7 @@ function WallArt() {
     const colors = Object.values(SHELF_COLORS)
     return Array.from({ length: 8 }, (_, i) => ({
       x: (i % 2 === 0 ? -1 : 1) * (HALL_HALF - 0.08),
-      y: 4.7 + (i % 3) * 0.36,
+      y: 5.16 + (i % 3) * 0.3,
       z: -i * 6.2,
       w: 0.8 + (i % 3) * 0.3,
       h: 0.6 + (i % 2) * 0.4,
@@ -737,7 +750,8 @@ function ActivePrinter({ position = [0, 0, 0], rotation = [0, 0, 0], scale = 1, 
           <sphereGeometry args={[0.025, 8, 8]} />
           <meshStandardMaterial color="#78d3ad" emissive="#78d3ad" emissiveIntensity={0.8} />
         </mesh>
-        <pointLight position={[0, 1.2, 0.3]} intensity={4} distance={4} color="#ffb060" />
+        {/* No point light per printer — six of them is six more per-fragment
+            lights for a glow the emissive screen and LED already sell. */}
       </group>
       <mesh position={[0, 0.15, 0.02]}>
         <boxGeometry args={[1.4, 0.25, 0.05]} />
@@ -883,12 +897,12 @@ function Bay({ z, index }) {
     <group position={[0, 0, z]}>
       {[-1, 1].map((side) => (
         <mesh key={side} position={[side * (HALL_HALF - 0.32), pierBase + pierHeight / 2, 0]}>
-          <boxGeometry args={[0.46, pierHeight, 0.5]} />
+          <boxGeometry args={[0.46, pierHeight, 0.3]} />
           <meshStandardMaterial color="#93a6a0" roughness={0.66} metalness={0.28} />
         </mesh>
       ))}
       <mesh position={[0, HALL_HEIGHT - 0.42, 0]}>
-        <boxGeometry args={[HALL_HALF * 2, 0.52, 0.5]} />
+        <boxGeometry args={[HALL_HALF * 2, 0.52, 0.3]} />
         <meshStandardMaterial color="#8ea29c" roughness={0.64} metalness={0.3} />
       </mesh>
       <mesh position={[0, HALL_HEIGHT - 0.72, 0]}>
@@ -980,427 +994,187 @@ function DoorFrame() {
   )
 }
 
-/* --------------------------------------------------------------- catalog -- */
+/* ------------------------------------------------------- gallery furniture -- */
 
-function WallDisplay({ side, groups, scale, spotlight }) {
+function GalleryBench({ position }) {
+  return (
+    <group position={position}>
+      <mesh position={[0, 0.45, 0]}>
+        <boxGeometry args={[2.2, 0.08, 0.5]} />
+        <meshStandardMaterial color="#8a9a94" roughness={0.5} />
+      </mesh>
+      {[[-0.9, -0.15], [0.9, -0.15], [-0.9, 0.15], [0.9, 0.15]].map(([x, z], i) => (
+        <mesh key={i} position={[x, 0.22, z]}>
+          <boxGeometry args={[0.06, 0.44, 0.06]} />
+          <meshStandardMaterial color="#4a5c55" metalness={0.6} roughness={0.4} />
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
+function CentralSculpture({ position }) {
+  const sculpture = useRef()
+
+  useFrame((state) => {
+    if (sculpture.current) sculpture.current.rotation.y = state.clock.elapsedTime * 0.3
+  })
+
+  return (
+    <group position={position}>
+      <mesh position={[0, 0.5, 0]}>
+        <boxGeometry args={[0.8, 1, 0.8]} />
+        <meshStandardMaterial color="#2a3a35" roughness={0.5} metalness={0.3} />
+      </mesh>
+      <group ref={sculpture} position={[0, 1.6, 0]}>
+        <mesh>
+          <torusKnotGeometry args={[0.35, 0.12, 64, 12]} />
+          <meshStandardMaterial color="#d0a451" roughness={0.3} metalness={0.6} />
+        </mesh>
+      </group>
+      <pointLight position={[0, 2.5, 0]} intensity={8} distance={6} color="#ffe0b0" />
+    </group>
+  )
+}
+
+/* --------------------------------------------------------------- gallery -- */
+
+/* One wall of the gallery: an angled display rail, a run of cards clipped to it
+   and the collection plaque that introduces each run. Everything on this wall is
+   expressed in wall-local space, where +x runs along the corridor and +z points
+   out into the hall. */
+function GalleryWall({ side, spotlight }) {
   const rotation = side === 'left' ? Math.PI / 2 : -Math.PI / 2
-  const x = side === 'left' ? -HALL_HALF : HALL_HALF
+  const own = side === 'left' ? -1 : 1
+  const x = side === 'left' ? -(HALL_HALF - WALL_INSET) : HALL_HALF - WALL_INSET
   const toLocal = (worldZ) => (side === 'left' ? -worldZ : worldZ)
-  const span = DISPLAY_START_Z - DISPLAY_END_Z
-  const midLocal = toLocal((DISPLAY_START_Z + DISPLAY_END_Z) / 2)
+  const slots = GALLERY_SLOTS.filter((slot) => slot.side === own)
+  const runs = collectionRuns(slots)
+  const midLocal = toLocal((GALLERY_START_Z + GALLERY_END_Z) / 2)
+  const yaw = own * CARD_YAW
+  const railLength = GALLERY_SPAN + 1.4
 
-  const layout = useMemo(() => {
-    const total = groups.reduce((sum, group) => sum + group.length, 0)
-    const gapTotal = GROUP_GAP * Math.max(0, groups.length - 1)
-    const step = (span - gapTotal) / Math.max(1, total - 1)
-    const laid = []
-    let cursor = DISPLAY_START_Z
-    let order = 0
+  /* Brackets carrying the rail off the wall. */
+  const brackets = Array.from({ length: 9 }, (_, i) => GALLERY_START_Z + 0.7 - (i * (GALLERY_SPAN + 1.4)) / 8)
 
-    groups.forEach((group, index) => {
-      const slots = group.map((product) => {
-        order += 1
-        const slot = { product, z: cursor, order }
-        cursor -= step
-        return slot
-      })
-      laid.push({
-        name: group[0].category,
-        count: group.length,
-        slots,
-        from: slots[0].z,
-        to: slots[slots.length - 1].z,
-      })
-      if (index < groups.length - 1) cursor -= GROUP_GAP
-    })
-
-    return laid
-  }, [groups, span])
+  /* Pools of light that wash the cards from just above the rail. Kept to three
+     per wall — every extra point light is paid for by every lit material in the
+     scene, and the scene has hundreds of them. */
+  const washes = Array.from({ length: 3 }, (_, i) => GALLERY_START_Z - 0.4 - (i * (GALLERY_SPAN - 0.8)) / 2)
 
   return (
     <group position={[x, 0, 0]} rotation={[0, rotation, 0]}>
-      <mesh position={[midLocal, LEDGE_Y, 0.48]} receiveShadow>
-        <boxGeometry args={[span + 0.8, 0.14, 0.94]} />
-        <meshStandardMaterial color="#dbe4de" roughness={0.34} metalness={0.4} />
+      {/* The rail itself — a single line carrying the whole run. */}
+      <mesh position={[midLocal, CARD_Y, CARD_STANDOFF]} rotation={[0, yaw, 0]}>
+        <boxGeometry args={[railLength, 0.07, 0.07]} />
+        <meshStandardMaterial color="#637975" metalness={0.72} roughness={0.3} />
       </mesh>
-      <mesh position={[midLocal, LEDGE_Y + 0.34, 0.05]}>
-        <boxGeometry args={[span + 0.8, 0.54, 0.06]} />
-        <meshStandardMaterial color="#b3c4bd" roughness={0.8} />
-      </mesh>
-      <mesh position={[midLocal, LEDGE_Y - 0.1, 0.92]}>
-        <boxGeometry args={[span + 0.8, 0.05, 0.06]} />
-        <meshStandardMaterial color="#8be1d5" emissive="#55c1b5" emissiveIntensity={0.85} />
-      </mesh>
-      <mesh position={[midLocal, LEDGE_Y + 0.63, 0.09]}>
-        <boxGeometry args={[span + 0.8, 0.03, 0.04]} />
-        <meshStandardMaterial color="#8be1d5" emissive="#55c1b5" emissiveIntensity={0.6} />
-      </mesh>
-      {/* Individual backlights behind each sample, so the shelf never goes murky. */}
-      {layout.map((group) => group.slots.map((slot) => (
-        <mesh key={`light-${slot.product.id}`} position={[toLocal(slot.z), LEDGE_Y + 0.62, 0.13]}>
-          <planeGeometry args={[0.86, 0.86]} />
-          <meshBasicMaterial
-            color={SHELF_COLORS[group.name] || '#8be1d5'}
-            transparent
-            opacity={0.16}
-            blending={THREE.AdditiveBlending}
-            depthWrite={false}
-          />
-        </mesh>
-      )))}
-      {Array.from({ length: 20 }, (_, i) => (
-        <mesh key={i} position={[toLocal(DISPLAY_START_Z + 0.7 - i * 2.2), LEDGE_Y - 0.26, 0.5]}>
-          <boxGeometry args={[0.1, 0.34, 0.84]} />
-          <meshStandardMaterial color="#5d6f6a" metalness={0.5} roughness={0.44} />
-        </mesh>
-      ))}
 
-      {layout.map((group) => {
-        const mid = toLocal((group.from + group.to) / 2)
-        const length = group.from - group.to
-
-        return (
-          <group key={group.name}>
-            <Text
-              position={[mid, 3.06, 0.12]}
-              fontSize={0.34}
-              color="#4c7d78"
-              anchorX="center"
-              anchorY="middle"
-              letterSpacing={0.12}
-              maxWidth={length * 0.88}
-              lineHeight={1.1}
-              textAlign="center"
-            >
-              {group.name.toUpperCase()}
-            </Text>
-            <mesh position={[mid, 2.62, 0.12]}>
-              <boxGeometry args={[length, 0.035, 0.03]} />
-              <meshStandardMaterial color="#7fbfb6" emissive="#4fb0a8" emissiveIntensity={0.4} />
-            </mesh>
-            <Text position={[mid, 2.4, 0.12]} fontSize={0.12} color="#7ba39e" anchorX="center" anchorY="middle" letterSpacing={0.2}>
-              {String(group.count).padStart(2, '0')} DESIGNS
-            </Text>
-            {group.slots.map((slot) => (
-              <DisplayItem
-                key={slot.product.id}
-                product={slot.product}
-                order={slot.order}
-                x={toLocal(slot.z)}
-                scale={scale}
-                spotlight={spotlight}
-              />
-            ))}
-          </group>
-        )
-      })}
-    </group>
-  )
-}
-
-function DisplayItem({ product, order, x, scale, spotlight }) {
-  const material = MATERIALS[product.category] || MATERIALS['Home & Decor']
-  const accent = SHELF_COLORS[product.category] || '#8be1d5'
-  const [hovered, setHovered] = useState(false)
-  const mix = useRef(0)
-  const root = useRef()
-
-  useFrame((_, delta) => {
-    mix.current = THREE.MathUtils.damp(mix.current, hovered ? 1 : 0, 10, delta)
-    if (!root.current) return
-    root.current.position.z = 0.44 + mix.current * 0.26
-    root.current.scale.setScalar(scale * (1 + mix.current * 0.14))
-  })
-
-  const enter = (event) => {
-    event.stopPropagation()
-    setHovered(true)
-    document.body.style.cursor = 'pointer'
-    spotlight.enter(product, order, event)
-  }
-
-  return (
-    <group ref={root} position={[x, LEDGE_Y + 0.07, 0.44]} scale={scale}>
-      <Artifact icon={product.icon} material={material} />
-      {/* Catalogue plinth, lit from the front. */}
-      <mesh position={[0, 0.055, 0.02]}>
-        <boxGeometry args={[0.66, 0.02, 0.42]} />
-        <meshStandardMaterial color="#f4f7f2" roughness={0.5} />
-      </mesh>
-      <mesh position={[0, 0.075, -0.2]}>
-        <boxGeometry args={[0.72, 0.06, 0.06]} />
-        <meshStandardMaterial
-          color={accent}
-          emissive={accent}
-          emissiveIntensity={hovered ? 1.2 : 0.35}
-          roughness={0.4}
-        />
-      </mesh>
-      <mesh
-        position={[0, 0.42, 0.3]}
-        onPointerOver={enter}
-        onPointerOut={(event) => {
-          event.stopPropagation()
-          setHovered(false)
-          document.body.style.cursor = ''
-          spotlight.leave()
-        }}
-        onClick={(event) => {
-          event.stopPropagation()
-          spotlight.navigate(`/product/${product.id}`)
-        }}
-      >
-        <planeGeometry args={[1.3, 1.4]} />
-        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-      </mesh>
-    </group>
-  )
-}
-
-function Artifact({ icon, material }) {
-  const trim = MATERIALS['Architecture Models']
-
-  if (icon === 'vase') {
-    const points = [
-      new THREE.Vector2(0.06, 0), new THREE.Vector2(0.22, 0.06), new THREE.Vector2(0.31, 0.3),
-      new THREE.Vector2(0.25, 0.55), new THREE.Vector2(0.12, 0.7), new THREE.Vector2(0.13, 0.86),
-      new THREE.Vector2(0.2, 0.88),
-    ]
-    return <mesh position={[0, 0.15, 0]} castShadow><latheGeometry args={[points, 12]} /><primitive object={material} attach="material" /></mesh>
-  }
-
-  if (icon === 'drone') {
-    return (
-      <group position={[0, 0.28, 0]}>
-        <mesh material={material}><boxGeometry args={[0.54, 0.1, 0.32]} /></mesh>
-        {[[-0.38, 0, -0.34], [0.38, 0, -0.34], [-0.38, 0, 0.34], [0.38, 0, 0.34]].map(([px, py, pz], i) => (
-          <group key={i} position={[px, py, pz]}>
-            <mesh material={trim}><boxGeometry args={[0.48, 0.06, 0.07]} /></mesh>
-            <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.06, 0]} material={material}><torusGeometry args={[0.15, 0.025, 6, 12]} /></mesh>
-          </group>
-        ))}
-      </group>
-    )
-  }
-
-  if (icon === 'building') {
-    return (
-      <group position={[0, 0.3, 0]}>
-        <mesh material={material}><boxGeometry args={[0.54, 0.55, 0.4]} /></mesh>
-        <mesh position={[-0.23, 0.34, 0]} material={trim}><boxGeometry args={[0.14, 0.32, 0.42]} /></mesh>
-        <mesh position={[0.18, 0.22, 0]} material={trim}><boxGeometry args={[0.16, 0.22, 0.44]} /></mesh>
-      </group>
-    )
-  }
-
-  if (icon === 'bracket' || icon === 'gear') {
-    return (
-      <group position={[0, 0.25, 0]} rotation={[0.15, 0.18, -0.12]}>
-        <mesh material={material}><boxGeometry args={[0.56, 0.14, 0.38]} /></mesh>
-        <mesh position={[-0.2, 0.22, 0]} material={material}><boxGeometry args={[0.14, 0.44, 0.38]} /></mesh>
-        {icon === 'gear' && <mesh position={[0.22, 0.2, 0.21]} material={trim}><torusGeometry args={[0.18, 0.055, 7, 12]} /></mesh>}
-      </group>
-    )
-  }
-
-  if (icon === 'helmet') {
-    return (
-      <group position={[0, 0.28, 0]}>
-        <mesh scale={[0.42, 0.46, 0.35]} material={material}><icosahedronGeometry args={[0.72, 1]} /></mesh>
-        <mesh position={[0, -0.13, 0.24]} material={trim}><boxGeometry args={[0.42, 0.1, 0.12]} /></mesh>
-      </group>
-    )
-  }
-
-  if (icon === 'grip') {
-    return (
-      <group position={[0, 0.3, 0]}>
-        <mesh rotation={[Math.PI / 2, 0, 0]} material={material}><torusGeometry args={[0.23, 0.12, 8, 16]} /></mesh>
-        <mesh position={[0.27, 0, 0]} rotation={[0, 0, -0.4]} material={trim}><cylinderGeometry args={[0.09, 0.13, 0.42, 8]} /></mesh>
-      </group>
-    )
-  }
-
-  if (icon === 'mini') {
-    return (
-      <group position={[0, 0.29, 0]}>
-        <mesh position={[0, -0.12, 0]} scale={[0.25, 0.33, 0.2]} material={material}><icosahedronGeometry args={[0.7, 1]} /></mesh>
-        <mesh position={[0, 0.22, 0]} scale={[0.2, 0.22, 0.18]} material={trim}><sphereGeometry args={[0.65, 10, 8]} /></mesh>
-        <mesh position={[0, -0.37, 0]} material={trim}><cylinderGeometry args={[0.22, 0.27, 0.1, 8]} /></mesh>
-      </group>
-    )
-  }
-
-  return (
-    <group position={[0, 0.28, 0]}>
-      <mesh material={material}><dodecahedronGeometry args={[0.38, 0]} /></mesh>
-      <mesh position={[0.24, 0.12, 0]} material={trim}><sphereGeometry args={[0.11, 8, 8]} /></mesh>
-    </group>
-  )
-}
-
-/* -------------------------------------------------------- display tables -- */
-
-function DisplayTables() {
-  return (
-    <group>
-      {[-1, 1].map((side) => (
-        <DisplayTable key={side} side={side} />
-      ))}
-      {HEADERS.map((header) => (
-        <CategoryHeader key={header.product.category} header={header} />
-      ))}
-    </group>
-  )
-}
-
-function DisplayTable({ side }) {
-  const x = side * CARD_ROW_X
-  const length = TABLE_FROM_Z - TABLE_TO_Z
-  const midZ = (TABLE_FROM_Z + TABLE_TO_Z) / 2
-  const legs = Array.from({ length: 9 }, (_, i) => TABLE_FROM_Z - 0.9 - i * ((length - 1.8) / 8))
-
-  return (
-    <group>
-      <mesh position={[x, TABLE_TOP - 0.04, midZ]}>
-        <boxGeometry args={[TABLE_W, 0.08, length]} />
-        <meshStandardMaterial color="#e2eae4" roughness={0.3} metalness={0.42} />
-      </mesh>
-      <mesh position={[x, TABLE_TOP - 0.16, midZ]}>
-        <boxGeometry args={[TABLE_W - 0.1, 0.16, length - 0.1]} />
-        <meshStandardMaterial color="#5d6f6a" roughness={0.6} metalness={0.24} />
-      </mesh>
-      <mesh position={[x, TABLE_TOP + 0.006, midZ]}>
-        <boxGeometry args={[TABLE_W - 0.06, 0.012, length - 0.3]} />
-        <meshStandardMaterial color="#8be1d5" emissive="#4fb0a8" emissiveIntensity={0.24} />
-      </mesh>
-      <mesh position={[x, 0.52, midZ]}>
-        <boxGeometry args={[TABLE_W - 0.26, 0.06, length - 0.6]} />
-        <meshStandardMaterial color="#8d9d97" roughness={0.7} metalness={0.16} />
-      </mesh>
-      {legs.map((z) => (
-        <group key={z} position={[x, 0, z]}>
-          {[-0.68, 0.68].map((offset) => (
-            <mesh key={offset} position={[offset, (TABLE_TOP - 0.24) / 2, 0]}>
-              <boxGeometry args={[0.08, TABLE_TOP - 0.24, 0.08]} />
-              <meshStandardMaterial color="#4f615d" metalness={0.66} roughness={0.34} />
-            </mesh>
-          ))}
-          <mesh position={[0, 0.14, 0]}>
-            <boxGeometry args={[1.44, 0.05, 0.06]} />
-            <meshStandardMaterial color="#4f615d" metalness={0.66} roughness={0.34} />
+      {brackets.map((z) => (
+        <group key={`bracket-${z}`} position={[toLocal(z), 0, 0]}>
+          <mesh position={[0, CARD_Y, 0.035]}>
+            <boxGeometry args={[0.3, 0.3, 0.07]} />
+            <meshStandardMaterial color="#4a5c55" metalness={0.7} roughness={0.32} />
+          </mesh>
+          <mesh position={[0, CARD_Y, CARD_STANDOFF / 2]}>
+            <boxGeometry args={[0.06, 0.06, CARD_STANDOFF]} />
+            <meshStandardMaterial color="#4a5c55" metalness={0.7} roughness={0.32} />
+          </mesh>
+          <mesh position={[0, CARD_Y + 0.55, CARD_STANDOFF * 0.55]} rotation={[0, 0, own * 0.9]}>
+            <boxGeometry args={[0.045, 0.045, CARD_STANDOFF * 1.15]} />
+            <meshStandardMaterial color="#4a5c55" metalness={0.7} roughness={0.32} />
           </mesh>
         </group>
       ))}
-      <mesh position={[x, TABLE_TOP - 0.16, TABLE_TO_Z - 0.56]}>
-        <boxGeometry args={[TABLE_W - 0.1, 0.24, 0.05]} />
-        <meshStandardMaterial color="#223634" roughness={0.6} />
-      </mesh>
-      <Text
-        position={[x, TABLE_TOP - 0.16, TABLE_TO_Z - 0.53]}
-        fontSize={0.07}
-        color="#9be3d8"
-        anchorX="center"
-        anchorY="middle"
-        letterSpacing={0.1}
-      >
-        TAP A CARD TO INSPECT
-      </Text>
-    </group>
-  )
-}
 
-function CategoryHeader({ header }) {
-  const accent = SHELF_COLORS[header.product.category] || '#8be1d5'
-  const rotation = [-0.1, -header.side * 0.24, 0]
-
-  return (
-    <group position={[header.side * CARD_ROW_X, TABLE_TOP + 2.05, header.z]} rotation={rotation}>
-      <mesh>
-        <boxGeometry args={[2.3, 0.62, 0.06]} />
-        <meshStandardMaterial color="#16292c" roughness={0.55} />
-      </mesh>
-      <mesh position={[0, 0.26, 0.02]}>
-        <boxGeometry args={[2.3, 0.06, 0.07]} />
-        <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.9} />
-      </mesh>
-      <Text
-        position={[0, 0.04, 0.05]}
-        fontSize={0.15}
-        maxWidth={2.1}
-        lineHeight={1.1}
-        textAlign="center"
-        anchorX="center"
-        anchorY="middle"
-        color="#e8fbf7"
-        letterSpacing={0.1}
-      >
-        {header.product.category.toUpperCase()}
-      </Text>
-      <Text position={[0, -0.17, 0.05]} fontSize={0.07} color="#8fb8b3" anchorX="center" anchorY="middle" letterSpacing={0.24}>
-        {String(header.count).padStart(2, '0')} DESIGNS
-      </Text>
-      {/* Two thin stems tie the header back down to the table top. */}
-      {[-0.95, 0.95].map((x) => (
-        <mesh key={x} position={[x, -1.18, -0.01]}>
-          <boxGeometry args={[0.035, 1.74, 0.035]} />
-          <meshStandardMaterial color="#3f5350" metalness={0.6} roughness={0.4} />
-        </mesh>
+      {/* Wall wash: a few wide, soft pools rather than a light per card. */}
+      {washes.map((z) => (
+        <pointLight key={`wash-${z}`} position={[toLocal(z), CARD_Y + 1.1, CARD_STANDOFF + 0.3]} intensity={26} distance={16} color="#ffe0b0" />
       ))}
-    </group>
-  )
-}
 
-/* ---------------------------------------------------------------- cards -- */
-
-function FloorCards({ spotlight }) {
-  return (
-    <group>
-      {/* Pools of accent light on the deck beneath each run of cards. */}
-      {HEADERS.map((header) => {
-        const rows = SLOTS.filter((slot) => slot.product.category === header.product.category)
-        const from = Math.max(...rows.map((slot) => slot.z)) + CARD_STEP * 0.5
-        const to = Math.min(...rows.map((slot) => slot.z)) - CARD_STEP * 0.5
+      {/* Track heads above the rail, angled down onto the cards. */}
+      {Array.from({ length: 10 }, (_, i) => {
+        const z = GALLERY_START_Z - 0.6 - (i * (GALLERY_SPAN - 1.2)) / 9
         return (
-          <mesh
-            key={`pool-${header.product.category}`}
-            position={[header.side * CARD_ROW_X, 0.018, (from + to) / 2]}
-            rotation={[-Math.PI / 2, 0, 0]}
-          >
-            <planeGeometry args={[1.5, from - to]} />
-            <meshBasicMaterial
-              color={SHELF_COLORS[header.product.category] || '#8be1d5'}
-              transparent
-              opacity={0.09}
-              blending={THREE.AdditiveBlending}
-              depthWrite={false}
-            />
+          <group key={`track-${z}`} position={[toLocal(z), CARD_Y + 1.5, CARD_STANDOFF - 0.1]}>
+            <mesh position={[0, 1.25, 0]}>
+              <cylinderGeometry args={[0.022, 0.022, 2.5, 6]} />
+              <meshStandardMaterial color="#3d4c48" metalness={0.6} roughness={0.4} />
+            </mesh>
+            <mesh rotation={[0.5, 0, 0]}>
+              <cylinderGeometry args={[0.03, 0.055, 0.14, 8]} />
+              <meshStandardMaterial color="#fff8e8" emissive="#ffb060" emissiveIntensity={1.2} toneMapped={false} />
+            </mesh>
+          </group>
+        )
+      })}
+
+      {/* Brass sconces punctuate the run between collections. */}
+      {Array.from({ length: 6 }, (_, i) => {
+        const z = GALLERY_START_Z - 1.4 - (i * (GALLERY_SPAN - 2.8)) / 5
+        return (
+          <mesh key={`sconce-${z}`} position={[toLocal(z), CARD_Y + 1.9, 0.05]}>
+            <boxGeometry args={[0.07, 0.34, 0.07]} />
+            <meshStandardMaterial color="#c89050" emissive="#a07030" emissiveIntensity={0.85} />
           </mesh>
         )
       })}
-      {SLOTS.map((slot) => (
-        <FloorCard key={slot.product.id} slot={slot} spotlight={spotlight} />
+
+      {runs.map((run) => (
+        <GalleryPlaque key={`${run.category}-${run.midLocal}`} run={run} midLocal={toLocal(run.midLocal)} />
+      ))}
+
+      {/* Every design in the catalogue gets a card on one of the two rails. */}
+      {slots.map((slot) => (
+        <group
+          key={slot.product.id}
+          position={[toLocal(slot.z), CARD_Y, CARD_STANDOFF]}
+          rotation={[CARD_TILT, yaw, 0]}
+        >
+          <GalleryCard slot={slot} spotlight={spotlight} />
+        </group>
       ))}
     </group>
   )
 }
 
-function FloorCard({ slot, spotlight }) {
-  const { product, side, z, order } = slot
-  const material = MATERIALS[product.category] || MATERIALS['Home & Decor']
+/* A collection plaque above the run, like a gallery room label. */
+function GalleryPlaque({ run, midLocal }) {
+  const accent = SHELF_COLORS[run.category] || '#8be1d5'
+
+  return (
+    <group position={[midLocal, CARD_Y + 1.12, CARD_STANDOFF - 0.16]}>
+      <Text
+        fontSize={0.15}
+        color="#d8ece7"
+        anchorX="center"
+        anchorY="middle"
+        letterSpacing={0.14}
+        maxWidth={3.2}
+        textAlign="center"
+      >
+        {run.category.toUpperCase()}
+      </Text>
+      <mesh position={[0, -0.15, 0]}>
+        <boxGeometry args={[1.4, 0.022, 0.022]} />
+        <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.7} />
+      </mesh>
+    </group>
+  )
+}
+
+/* One card on the rail: moulding, mount, photograph and a catalogue number.
+   Deliberately lean — at 67 cards every extra mesh is paid for 67 times, and
+   the name, spec and price are already on the hover read-out. */
+function GalleryCard({ slot, spotlight }) {
+  const { product, order } = slot
   const accent = SHELF_COLORS[product.category] || '#8be1d5'
   const [hovered, setHovered] = useState(false)
-  const lift = useRef(0)
-  const root = useRef()
-  const yaw = useRef(0)
+  const stand = useRef(0)
+  const photo = useProductPhoto(product.image)
 
   useFrame((_, delta) => {
-    lift.current = THREE.MathUtils.damp(lift.current, hovered ? 1 : 0, 9, delta)
-    yaw.current = THREE.MathUtils.damp(yaw.current, hovered ? 0.85 : 1, 9, delta)
-    if (!root.current) return
-    root.current.position.y = TABLE_TOP + lift.current * 0.26
-    root.current.scale.setScalar(1 + lift.current * 0.14)
-    root.current.rotation.set(-0.16 - lift.current * 0.04, -side * 0.22 * yaw.current, 0)
+    stand.current = THREE.MathUtils.damp(stand.current, hovered ? 1 : 0, 9, delta)
   })
 
   const enter = (event) => {
@@ -1418,88 +1192,72 @@ function FloorCard({ slot, spotlight }) {
   }
 
   return (
-    <group ref={root} position={[side * CARD_ROW_X, TABLE_TOP, z]} rotation={[-0.16, -side * 0.22, 0]}>
-      {/* Light bleed behind the card so it reads as a lit panel. */}
-      <mesh position={[0, CARD_H / 2, -0.12]}>
-        <planeGeometry args={[CARD_W + 0.6, CARD_H + 0.6]} />
+    <group>
+      {/* Accent wash spilling onto the card face. Kept tight — a wider plane
+          bleeds additively over the neighbouring cards down the rail. */}
+      <mesh position={[0, 0, 0.005]}>
+        <planeGeometry args={[CARD_W + 0.16, CARD_H + 0.16]} />
         <meshBasicMaterial
           color={accent}
           transparent
-          opacity={hovered ? 0.3 : 0.11}
+          opacity={hovered ? 0.3 : 0.1}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
         />
       </mesh>
 
-      <mesh position={[0, CARD_H / 2, 0]}>
-        <boxGeometry args={[CARD_W, CARD_H, 0.05]} />
-        <meshStandardMaterial color="#16292c" roughness={0.42} metalness={0.5} />
+      {/* Moulding, then the mount it holds. */}
+      <mesh>
+        <boxGeometry args={[CARD_W, CARD_H, 0.07]} />
+        <meshStandardMaterial color="#1c2b2e" roughness={0.45} metalness={0.32} />
       </mesh>
-      <mesh position={[0, CARD_H / 2, 0.014]}>
-        <boxGeometry args={[CARD_W - 0.09, CARD_H - 0.09, 0.055]} />
+      <mesh position={[0, 0, 0.036]}>
+        <boxGeometry args={[CARD_W - 0.12, CARD_H - 0.12, 0.012]} />
         <meshStandardMaterial
-          color="#f4f0e4"
-          roughness={0.66}
+          color="#f2eee2"
+          roughness={0.62}
           emissive={accent}
-          emissiveIntensity={hovered ? 0.4 : 0.07}
+          emissiveIntensity={hovered ? 0.5 : 0.1}
         />
       </mesh>
 
-      {/* Header band: catalogue number, category tick. */}
-      <mesh position={[0, CARD_H - 0.13, 0.032]}>
-        <boxGeometry args={[CARD_W - 0.09, 0.18, 0.06]} />
-        <meshStandardMaterial color={accent} roughness={0.42} metalness={0.1} emissive={accent} emissiveIntensity={hovered ? 0.6 : 0.14} />
+      {/* The print itself, sitting slightly proud of the mount. */}
+      <mesh position={[0, 0.1, 0.046]}>
+        <planeGeometry args={[PHOTO_W, PHOTO_H]} />
+        <meshBasicMaterial map={photo || undefined} color={photo ? '#ffffff' : accent} toneMapped={false} />
       </mesh>
-      <Text position={[0, CARD_H - 0.13, 0.07]} fontSize={0.082} color="#fdfaf3" anchorX="center" anchorY="middle" letterSpacing={0.14}>
+
+      {/* Catalogue number on the mount, museum-label style. */}
+      <mesh position={[0, -CARD_H / 2 + 0.19, 0.046]}>
+        <boxGeometry args={[0.52, 0.17, 0.01]} />
+        <meshStandardMaterial color={accent} roughness={0.4} emissive={accent} emissiveIntensity={hovered ? 1 : 0.35} />
+      </mesh>
+      <Text
+        position={[0, -CARD_H / 2 + 0.19, 0.055]}
+        fontSize={0.1}
+        color="#fdfaf3"
+        anchorX="center"
+        anchorY="middle"
+        letterSpacing={0.12}
+      >
         {String(order).padStart(2, '0')}
       </Text>
 
-      {/* Sample window — the photograph sits proud of the card face. */}
-      <mesh position={[0, 1.0, 0.03]}>
-        <boxGeometry args={[1.12, 1.0, 0.058]} />
-        <meshStandardMaterial color="#1b2b2f" roughness={0.7} />
-      </mesh>
-      <mesh position={[0, 1.0, 0.045]}>
-        <planeGeometry args={[1.04, 0.92]} />
-        <meshStandardMaterial color="#e7e9de" roughness={0.75} />
-      </mesh>
-      <mesh position={[0, 1.53, 0.034]}>
-        <boxGeometry args={[1.12, 0.03, 0.06]} />
-        <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={hovered ? 1.1 : 0.5} />
-      </mesh>
-      <CardShot product={product} material={material} hovered={hovered} />
-
-      <mesh position={[0, 0.44, 0.032]}>
-        <boxGeometry args={[CARD_W - 0.28, 0.014, 0.06]} />
-        <meshStandardMaterial color="#9fb6b1" roughness={0.6} />
-      </mesh>
-      <Text
-        position={[0, 0.3, 0.05]}
-        fontSize={0.094}
-        maxWidth={CARD_W - 0.22}
-        lineHeight={1.14}
-        textAlign="center"
-        anchorX="center"
-        anchorY="middle"
-        color="#1b3436"
-      >
-        {product.name}
-      </Text>
-      <Text position={[0, 0.11, 0.05]} fontSize={0.05} maxWidth={CARD_W - 0.22} textAlign="center" anchorX="center" anchorY="middle" color="#5f817d" letterSpacing={0.1}>
-        {`${product.material.toUpperCase()} · ${product.layerHeight}`}
-      </Text>
-
-      {/* Generous invisible hit area — nothing else in the scene eats clicks. */}
+      {/* Generous invisible hit area — nothing else in the scene eats clicks.
+          Kept flush with the card so neighbours cannot steal each other's hover.
+          `onPointerMove` rather than `onPointerOver`: the camera is always
+          drifting, so a card can slide under a stationary cursor and a plain
+          enter-event would never fire. */}
       <mesh
-        position={[0, CARD_H / 2, 0.2]}
-        onPointerOver={enter}
+        position={[0, 0, 0.07]}
+        onPointerMove={enter}
         onPointerOut={leave}
         onClick={(event) => {
           event.stopPropagation()
           spotlight.navigate(`/product/${product.id}`)
         }}
       >
-        <planeGeometry args={[CARD_W + 0.5, CARD_H + 0.5]} />
+        <planeGeometry args={[CARD_W + 0.12, CARD_H]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
     </group>
@@ -1781,14 +1539,20 @@ export default function LabExperience() {
           <span className="lab-live"><i /> YOU’RE IN THE LAB</span>
           <h2>A whole world,<br />built one layer at a time.</h2>
           <p>
-            {PRODUCTS.length} designs across {CATEGORY_ORDER.length} collections, lit along the walls and
-            standing on the tables. Hover a card for its spec, click to open it.
+            All {PRODUCTS.length} designs across {CATEGORY_ORDER.length} collections are hanging on
+            these walls, lit and labelled. Hover a card for its spec, click to open it — then keep
+            scrolling for the full library.
           </p>
           <div className="lab-arrival-foot">
             <span>{CATEGORY_ORDER.length} collections</span>
             <span>{PRODUCTS.length} designs</span>
             <span>6 bays</span>
           </div>
+          {/* The panel itself ignores pointer events so it never blocks the
+              scene, so the one way on to the full catalogue opts back in. */}
+          <a className="lab-arrival-cta" href="#design-hall">
+            See all {PRODUCTS.length} designs
+          </a>
         </div>
 
         <div className="lab-corner-mark" aria-hidden="true">773 <span>·</span> PRINT STUDIO</div>
@@ -1816,17 +1580,6 @@ export default function LabExperience() {
           </div>
         </div>
       </div>
-
-      <nav className="lab-index" aria-label="Product index">
-        <h2>Design library</h2>
-        <ul>
-          {PRODUCTS.map((product) => (
-            <li key={product.id}>
-              <Link to={`/product/${product.id}`}>{product.name}</Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
     </section>
   )
 }

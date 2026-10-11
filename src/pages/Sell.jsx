@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { waLink, trackSend, buildGeneralMessage } from '../data/whatsapp.js'
+import { waLink, buildGeneralMessage } from '../data/whatsapp.js'
 
 const SELLER_BENEFITS = [
   { title: 'Reach thousands of buyers', desc: 'List your designs in front of our growing community of makers, engineers, and hobbyists.' },
@@ -25,7 +25,6 @@ export default function Sell() {
     e.preventDefault()
     const message = `Hi 773 Labs! I'd like to become a seller.\n\nName: ${form.name}\nEmail: ${form.email}\nPhone: ${form.phone}\nStore name: ${form.storeName}\nExperience: ${form.experience}\nCatalog: ${form.catalog}`
     window.open(waLink(message), '_blank', 'noopener,noreferrer')
-    trackSend('seller-application', message)()
   }
 
   return (

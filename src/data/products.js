@@ -1,6 +1,12 @@
 // Seed catalog. Add more objects to this array to grow the shop —
-// nothing else in the app needs to change. `image` uses an asset from
-// public when available; otherwise `icon` renders the line-art fallback.
+// nothing else in the app needs to change. Every design now hangs a real
+// photograph in the 3D gallery, so `image` should point at an asset in
+// public; `icon` only remains as a line-art fallback for new entries.
+//
+// Photographs for the Assistive Aids, Custom Enclosures & Mounts and
+// Headphone Stand designs were sourced from the web (Openverse,
+// Wikimedia Commons, Flickr) and live in public/. All are openly
+// licensed; sources are listed at the bottom of this file.
 
 export const CATEGORIES = [
   'Mechanical Parts & Brackets',
@@ -65,20 +71,20 @@ export const PRODUCTS = [
   { id: 'am-06', name: 'Landscape Contour Model', category: 'Architecture Models', material: 'PLA', layerHeight: '0.2mm', printTime: '8h', price: 'From ₹1,799', icon: 'building', image: '/Sculptural Single-Wall Vase.jpg' },
 
   // Assistive Aids
-  { id: 'aa-01', name: 'Articulated Grip Test Piece', category: 'Assistive Aids', material: 'TPU', layerHeight: '0.2mm', printTime: '7h', price: 'From ₹699', icon: 'grip' },
-  { id: 'aa-02', name: 'Jar Opener Aid', category: 'Assistive Aids', material: 'PETG', layerHeight: '0.2mm', printTime: '2h', price: 'From ₹249', icon: 'grip' },
-  { id: 'aa-03', name: 'Adjustable Wrist Splint Shell', category: 'Assistive Aids', material: 'PETG', layerHeight: '0.16mm', printTime: '4h', price: 'From ₹599', icon: 'grip' },
-  { id: 'aa-04', name: 'Adaptive Utensil Handle', category: 'Assistive Aids', material: 'TPU', layerHeight: '0.2mm', printTime: '2h', price: 'From ₹299', icon: 'grip' },
-  { id: 'aa-05', name: 'Door Lever Extender', category: 'Assistive Aids', material: 'PETG', layerHeight: '0.2mm', printTime: '1h', price: 'From ₹199', icon: 'bracket' },
-  { id: 'aa-06', name: 'Button Hook Aid', category: 'Assistive Aids', material: 'PLA', layerHeight: '0.2mm', printTime: '1h', price: 'From ₹179', icon: 'grip' },
+  { id: 'aa-01', name: 'Articulated Grip Test Piece', category: 'Assistive Aids', material: 'TPU', layerHeight: '0.2mm', printTime: '7h', price: 'From ₹699', icon: 'grip', image: '/Articulated Grip Test Piece.jpg' },
+  { id: 'aa-02', name: 'Jar Opener Aid', category: 'Assistive Aids', material: 'PETG', layerHeight: '0.2mm', printTime: '2h', price: 'From ₹249', icon: 'grip', image: '/Jar Opener Aid.jpg' },
+  { id: 'aa-03', name: 'Adjustable Wrist Splint Shell', category: 'Assistive Aids', material: 'PETG', layerHeight: '0.16mm', printTime: '4h', price: 'From ₹599', icon: 'grip', image: '/Adjustable Wrist Splint Shell.jpg' },
+  { id: 'aa-04', name: 'Adaptive Utensil Handle', category: 'Assistive Aids', material: 'TPU', layerHeight: '0.2mm', printTime: '2h', price: 'From ₹299', icon: 'grip', image: '/Adaptive Utensil Handle.jpg' },
+  { id: 'aa-05', name: 'Door Lever Extender', category: 'Assistive Aids', material: 'PETG', layerHeight: '0.2mm', printTime: '1h', price: 'From ₹199', icon: 'bracket', image: '/Door Lever Extender.jpg' },
+  { id: 'aa-06', name: 'Button Hook Aid', category: 'Assistive Aids', material: 'PLA', layerHeight: '0.2mm', printTime: '1h', price: 'From ₹179', icon: 'grip', image: '/Button Hook Aid.jpg' },
 
   // Custom Enclosures & Mounts
-  { id: 'ce-01', name: 'Raspberry Pi Enclosure', category: 'Custom Enclosures & Mounts', material: 'PETG', layerHeight: '0.16mm', printTime: '3h', price: 'From ₹399', icon: 'bracket' },
-  { id: 'ce-02', name: 'Wall-Mount Phone Dock', category: 'Custom Enclosures & Mounts', material: 'PLA', layerHeight: '0.2mm', printTime: '2h', price: 'From ₹299', icon: 'bracket' },
-  { id: 'ce-03', name: 'Cable Management Tray', category: 'Custom Enclosures & Mounts', material: 'PETG', layerHeight: '0.2mm', printTime: '3h', price: 'From ₹349', icon: 'bracket' },
-  { id: 'ce-04', name: 'Under-Desk Headphone Hook', category: 'Custom Enclosures & Mounts', material: 'PLA', layerHeight: '0.2mm', printTime: '1h', price: 'From ₹199', icon: 'bracket' },
-  { id: 'ce-05', name: 'Router Wall Mount', category: 'Custom Enclosures & Mounts', material: 'PETG', layerHeight: '0.2mm', printTime: '2h', price: 'From ₹349', icon: 'bracket' },
-  { id: 'ce-06', name: 'Custom PCB Enclosure', category: 'Custom Enclosures & Mounts', material: 'PETG', layerHeight: '0.16mm', printTime: '4h', price: 'From ₹549', icon: 'gear' },
+  { id: 'ce-01', name: 'Raspberry Pi Enclosure', category: 'Custom Enclosures & Mounts', material: 'PETG', layerHeight: '0.16mm', printTime: '3h', price: 'From ₹399', icon: 'bracket', image: '/Raspberry Pi Enclosure.jpg' },
+  { id: 'ce-02', name: 'Wall-Mount Phone Dock', category: 'Custom Enclosures & Mounts', material: 'PLA', layerHeight: '0.2mm', printTime: '2h', price: 'From ₹299', icon: 'bracket', image: '/Wall-Mount Phone Dock.jpg' },
+  { id: 'ce-03', name: 'Cable Management Tray', category: 'Custom Enclosures & Mounts', material: 'PETG', layerHeight: '0.2mm', printTime: '3h', price: 'From ₹349', icon: 'bracket', image: '/Cable Management Tray.jpg' },
+  { id: 'ce-04', name: 'Under-Desk Headphone Hook', category: 'Custom Enclosures & Mounts', material: 'PLA', layerHeight: '0.2mm', printTime: '1h', price: 'From ₹199', icon: 'bracket', image: '/Under-Desk Headphone Hook.jpg' },
+  { id: 'ce-05', name: 'Router Wall Mount', category: 'Custom Enclosures & Mounts', material: 'PETG', layerHeight: '0.2mm', printTime: '2h', price: 'From ₹349', icon: 'bracket', image: '/Router Wall Mount.jpg' },
+  { id: 'ce-06', name: 'Custom PCB Enclosure', category: 'Custom Enclosures & Mounts', material: 'PETG', layerHeight: '0.16mm', printTime: '4h', price: 'From ₹549', icon: 'gear', image: '/Custom PCB Enclosure.jpg' },
 
   // Characters (Movies & TV)
   { id: 'ch-01', name: 'Superman', category: 'Characters', material: 'Resin', layerHeight: '0.05mm', printTime: '8h', price: 'From ₹1,299', icon: 'mini', image: '/Collectible Bust — Warrior.jpg' },
@@ -103,10 +109,28 @@ export const PRODUCTS = [
   { id: 'mw-03', name: 'Infinite Fidget Cube', category: 'Miniatures & Collectibles', material: 'PETG', layerHeight: '0.16mm', printTime: '2h', price: 'From ₹249', icon: 'grip', image: '/Infinite Fidget Cube.jpg' },
   { id: 'mw-04', name: 'Hexagon Wall Planter Set', category: 'Home & Decor', material: 'PLA', layerHeight: '0.2mm', printTime: '6h', price: 'From ₹599', icon: 'vase', image: '/Hexagon Wall Planter Set.jpg' },
   { id: 'mw-05', name: 'Moon Lamp Lithophane', category: 'Home & Decor', material: 'PLA', layerHeight: '0.12mm', printTime: '9h', price: 'From ₹1,099', icon: 'vase', image: '/Moon Lamp Lithophane.jpg' },
-  { id: 'mw-06', name: 'Headphone Stand — Curve', category: 'Custom Enclosures & Mounts', material: 'PETG', layerHeight: '0.2mm', printTime: '5h', price: 'From ₹499', icon: 'bracket' },
+  { id: 'mw-06', name: 'Headphone Stand — Curve', category: 'Custom Enclosures & Mounts', material: 'PETG', layerHeight: '0.2mm', printTime: '5h', price: 'From ₹499', icon: 'bracket', image: '/Headphone Stand — Curve.jpg' },
   { id: 'mw-07', name: 'Foldable Phone Stand', category: 'Mechanical Parts & Brackets', material: 'PLA', layerHeight: '0.2mm', printTime: '1h', price: 'From ₹199', icon: 'bracket', image: '/foldable phone mount.jpg' },
   { id: 'mw-08', name: 'Dragon Dice Tower', category: 'Miniatures & Collectibles', material: 'PLA', layerHeight: '0.16mm', printTime: '8h', price: 'From ₹899', icon: 'building', image: '/Dragon Dice Tower.jpg' },
 ]
 
 // The two designs shown on the homepage — pick any two ids from PRODUCTS.
 export const FEATURED_IDS = ['sp-01', 'cp-01']
+
+/* Source of the web-fetched photographs (all openly licensed). Swap the file
+   and keep this list in sync if a picture is ever replaced. */
+export const PHOTO_CREDITS = [
+  { image: '/Articulated Grip Test Piece.jpg', title: "Sophie's Lego Gripper with Turntable and Aliens", source: 'Flickr', license: 'CC' },
+  { image: '/Jar Opener Aid.jpg', title: 'Jar opener', source: 'Wikimedia Commons', license: 'CC' },
+  { image: '/Adjustable Wrist Splint Shell.jpg', title: 'Occupational therapist adjusts a handsplint', source: 'Wikimedia Commons', license: 'CC' },
+  { image: '/Adaptive Utensil Handle.jpg', title: 'Pittal old utensils 07', source: 'Wikimedia Commons', license: 'CC' },
+  { image: '/Door Lever Extender.jpg', title: 'Door Handle', source: 'Flickr', license: 'CC' },
+  { image: '/Button Hook Aid.jpg', title: 'Button Hook — Mirka Mora, circa 1900s', source: 'Museums Victoria', license: 'CC' },
+  { image: '/Raspberry Pi Enclosure.jpg', title: 'Raspberry Pi case', source: 'Flickr', license: 'CC' },
+  { image: '/Wall-Mount Phone Dock.jpg', title: 'PinePhone Docking Bar', source: 'Wikimedia Commons', license: 'CC' },
+  { image: '/Cable Management Tray.jpg', title: 'Cable tray with cables', source: 'Wikimedia Commons', license: 'CC' },
+  { image: '/Under-Desk Headphone Hook.jpg', title: 'Descriptive Acts Part 1 — Headphone Hook or Hexapus?', source: 'Flickr', license: 'CC' },
+  { image: '/Router Wall Mount.jpg', title: 'Wall-mounted network rack with router', source: 'WordPress Photo Directory', license: 'CC0' },
+  { image: '/Custom PCB Enclosure.jpg', title: 'Old ROV electronics enclosure', source: 'Flickr', license: 'CC' },
+  { image: '/Headphone Stand — Curve.jpg', title: 'DIY headphone stand', source: 'Flickr', license: 'CC' },
+]
