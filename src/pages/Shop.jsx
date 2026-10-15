@@ -126,7 +126,7 @@ export default function Shop() {
               <div className="shop-card-media">
                 {product.image && !imageErrors[product.id] ? (
                   <img
-                    src={product.image}
+                    src={encodeURI(product.image)}
                     alt={product.name}
                     loading="lazy"
                     onError={() => setImageErrors((prev) => ({ ...prev, [product.id]: true }))}

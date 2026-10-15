@@ -41,7 +41,7 @@ export default function Product() {
       <article className="product-sheet">
         <div className="product-media">
           {product.image && !imageFailed ? (
-            <img src={product.image} alt={product.name} onError={() => setImageFailed(true)} />
+            <img src={encodeURI(product.image)} alt={product.name} onError={() => setImageFailed(true)} />
           ) : (
             <div className="product-media-fallback">
               <span>No photo yet</span>

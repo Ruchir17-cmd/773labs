@@ -182,7 +182,7 @@ function loadProductPhoto(url) {
    each file is fetched and decoded exactly once even though several frames
    reference it. */
 function useProductPhoto(url) {
-  const [texture, setTexture] = useState(() => (url ? photoCache.get(url) : null))
+  const [texture, setTexture] = useState(() => (url ? (photoCache.get(url) ?? null) : null))
 
   useEffect(() => {
     if (!url) {
@@ -1172,6 +1172,10 @@ function GalleryCard({ slot, spotlight }) {
   const [hovered, setHovered] = useState(false)
   const stand = useRef(0)
   const photo = useProductPhoto(product.image)
+  const photoMat = useRef(null)
+  useEffect(() => {
+    if (photoMat.current) photoMat.current.needsUpdate = true
+  }, [photo])
 
   useFrame((_, delta) => {
     stand.current = THREE.MathUtils.damp(stand.current, hovered ? 1 : 0, 9, delta)
@@ -1224,7 +1228,7 @@ function GalleryCard({ slot, spotlight }) {
       {/* The print itself, sitting slightly proud of the mount. */}
       <mesh position={[0, 0.1, 0.046]}>
         <planeGeometry args={[PHOTO_W, PHOTO_H]} />
-        <meshBasicMaterial map={photo || undefined} color={photo ? '#ffffff' : accent} toneMapped={false} />
+        <meshBasicMaterial ref={photoMat} map={photo || undefined} color={photo ? '#ffffff' : accent} toneMapped={false} />
       </mesh>
 
       {/* Catalogue number on the mount, museum-label style. */}
