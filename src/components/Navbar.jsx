@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { to: '/track', label: 'Track Order' },
   { to: '/compare', label: 'Compare' },
   { to: '/app', label: 'App' },
+{ to: '/bug-bounty', label: 'Bug Bounty' },
 ]
 
 export default function Navbar() {

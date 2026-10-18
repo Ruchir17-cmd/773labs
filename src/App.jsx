@@ -8,6 +8,7 @@ import Sell from './pages/Sell.jsx'
 import TrackOrder from './pages/TrackOrder.jsx'
 import Compare from './pages/Compare.jsx'
 import AppPromo from './pages/AppPromo.jsx'
+import BugBounty from './pages/BugBounty.jsx'
 import Navbar from './components/Navbar.jsx'
 
 export default function App() {
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/track" element={<TrackOrder />} />
         <Route path="/compare" element={<Compare />} />
         <Route path="/app" element={<AppPromo />} />
+<Route path="/bug-bounty" element={<BugBounty />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </main>
