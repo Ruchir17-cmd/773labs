@@ -1,8 +1,14 @@
 # 773 LABS
 
-A React + Vite storefront for browsing 3D printed designs. There's no backend —
-every "order" and "quote" button opens WhatsApp with a pre-filled message to
-+91 62604 28896.
+A React + Vite site for the 773 Labs 3D print studio, styled after the Nothing OS
+aesthetic. There's no backend — every "Order" button opens WhatsApp with a
+pre-filled message to +91 62604 28896.
+
+## Pages
+
+- `/` — Studio: who we are, what we do, process, CTA.
+- `/printers` — The machines we run (FDM + resin).
+- `/order` — Custom print request form (opens WhatsApp).
 
 ## Run it locally
 
@@ -19,29 +25,13 @@ Then open the local URL it prints (usually http://localhost:5173).
 npm run build
 ```
 
-This outputs a static `dist/` folder you can upload to any static host
-(Netlify, Vercel, GitHub Pages, cPanel, etc.) — no server or database needed.
+This outputs a static `dist/` folder you can upload to any static host.
 
 ## Where to make changes
 
-- **Add or edit designs**: `src/data/products.js`. Each entry is one product
-  card. Add as many as you like — the shop page's search, filters, and
-  "show more" pagination all work automatically.
-- **Change the WhatsApp number**: `src/data/whatsapp.js`, the `WHATSAPP_PHONE`
-  constant (digits only, country code first, no `+` or spaces).
-- **Which 2 designs show on the homepage**: `FEATURED_IDS` at the bottom of
-  `src/data/products.js`.
-- **Copy and sections**: `src/pages/Home.jsx`, `src/pages/Shop.jsx`,
-  `src/pages/Quote.jsx`.
-- **Colors, fonts, spacing**: `src/index.css` (CSS variables at the top).
-- **Icons on product cards**: `src/components/Icon.jsx` — there are 8 line-art
-  icons (gear, drone, helmet, building, grip, vase, bracket, mini). Assign one
-  per product via the `icon` field in `products.js`, or add new ones here.
-
-## Notes
-
-- Testimonials, prices, and printer materials are placeholders — replace them
-  with real client feedback and 773 Labs' actual pricing.
-- The product images are simple line-art icons, not real photos. Swapping in
-  real photos would mean replacing `<Icon name="..." />` in
-  `src/components/ProductCard.jsx` with an `<img>` tag once photos exist.
+- **Studio copy / capabilities / process**: `src/pages/Home.jsx`.
+- **Printer list & specs**: `src/pages/Printers.jsx`.
+- **Order form fields**: `src/pages/Order.jsx`.
+- **WhatsApp number**: `src/data/whatsapp.js`, the `WHATSAPP_PHONE` constant.
+- **Colors, fonts, spacing**: `src/lab.css` (CSS variables at the top).
+- **Nav / footer**: `src/components/Navbar.jsx` and the footers in each page.
